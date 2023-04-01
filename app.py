@@ -55,7 +55,7 @@ api.add_resource(PersonService, '/person')
 api.add_resource(PeoplelistService, '/people/<filter_name>', '/people/<filter_name>/<filter_role>')
 api.add_resource(EventService, '/event/<event_uuid>')
 api.add_resource(EventlistService, '/events', '/events/<date>')
-api.add_resource(EmailService, '/email', '/email/<exam_uuid>/<template>')
+api.add_resource(EmailService, '/email', '/email/<exam_uuid>/<status>')
 api.add_resource(PrintService, '/print', '/print/<exam_uuid>')
 
 

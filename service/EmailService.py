@@ -27,19 +27,23 @@ class EmailService(Resource):
 
     @token_required
     @teacher_required
-    def get(self, exam_uuid, template):
+    def get(self, exam_uuid, status):
         """
         sends an email
         :param exam_uuid: the unique key
-        :param template: the template for the email
+        :param status: the template for the email
         :return: http response
         """
+        if status not in [None, '10', '20', '30', '40']:
+            return make_response('error', 500)
+
         exam_dao = ExamDAO()
         exam = exam_dao.read_exam(exam_uuid)
-        http_status = 404
-        if exam is not None:
-            create_email(exam, template)
-            http_status = 200
+        if exam is None:
+            return make_response('not found', 404)
+
+        create_email(exam, status)
+        http_status = 200
         return make_response('email sent', http_status)
 
     @token_required
