@@ -34,7 +34,7 @@ class EmailService(Resource):
         :param status: the template for the email
         :return: http response
         """
-        if status not in [None, '10', '20', '30', '40']:
+        if status not in [None, '10', '20', '30', '35', '40']:
             return make_response('error', 500)
 
         exam_dao = ExamDAO()
@@ -42,7 +42,7 @@ class EmailService(Resource):
         if exam is None:
             return make_response('not found', 404)
 
-        create_email(exam, status)
+        create_email(exam, status, False)
         http_status = 200
         return make_response('email sent', http_status)
 
@@ -64,16 +64,17 @@ class EmailService(Resource):
                 uuid = exam_uuid
             exam = exam_dao.read_exam(uuid)
             if exam is not None:
-                create_email(exam, 'invitation')
+                create_email(exam, 'invitation', True)
         return make_response('email sent', 200)
 
 
-def create_email(exam, status):
+def create_email(exam, status, invitation=False):
     """
     creates an email for the selected exam and type
     :param exam: the unique uuid for an exam
-    :param status: the type of email (missed, ...)
-    :return: successful
+    :param status: the status of the exam
+    :param invitation: send invitation
+    :return: None
     """
     event_dao = EventDAO()
     event = event_dao.read_event(exam.event_uuid)
@@ -81,18 +82,18 @@ def create_email(exam, status):
     chief_supervisor = person_dao.read_person(event.supervisors[0])
     filename = current_app.config['TEMPLATEPATH']
 
-    if status == '10':
-        filename += 'missed.txt'
-        sender = exam.teacher.email
-        subject = 'Verpasste Prüfung'
-    elif status == '20':
-        filename += 'missed2.txt'
-        sender = exam.teacher.email
-        subject = 'Verpasste Prüfung'
-    else:
-        filename += 'invitation.txt'
+    if invitation:
         sender = chief_supervisor.email
+        filename += 'invitation.txt'
         subject = 'Aufgebot zur Nachprüfung'
+    else:
+        sender = exam.teacher.email
+        if status == '10':
+            filename += 'missed.txt'
+            subject = 'Verpasste Prüfung'
+        else:
+            filename += 'missed2.txt'
+            subject = 'Verpasste Prüfung'
     file = open(filename, encoding='UTF-8')
     text = file.read()
     data = {'student.firstname': exam.student.firstname,
