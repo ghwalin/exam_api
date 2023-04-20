@@ -34,7 +34,7 @@ class EmailService(Resource):
         :param status: the template for the email
         :return: http response
         """
-        if status not in [None, '10', '20', '30', '40']:
+        if status not in [None, '10', '20', '30', '35', '40']:
             return make_response('error', 500)
 
         exam_dao = ExamDAO()
@@ -42,7 +42,7 @@ class EmailService(Resource):
         if exam is None:
             return make_response('not found', 404)
 
-        create_email(exam, status)
+        create_email(exam, status, False)
         http_status = 200
         return make_response('email sent', http_status)
 
@@ -64,15 +64,16 @@ class EmailService(Resource):
                 uuid = exam_uuid
             exam = exam_dao.read_exam(uuid)
             if exam is not None:
-                create_email(exam, 'invitation')
+                create_email(exam, 'invitation', True)
         return make_response('email sent', 200)
 
 
-def create_email(exam, status):
+def create_email(exam, status, invitation=False):
     """
     creates an email for the selected exam and type
     :param exam: the unique uuid for an exam
-    :param status: the type of email (missed, ...)
+    :param status: the status of the exam
+    :param invitation: send invitation
     :return: successful
     """
     event_dao = EventDAO()
@@ -81,45 +82,45 @@ def create_email(exam, status):
     chief_supervisor = person_dao.read_person(event.supervisors[0])
     filename = current_app.config['TEMPLATEPATH']
 
-    if status == '10':
-        filename += 'missed.txt'
-        sender = exam.teacher.email
-        subject = 'Verpasste Prüfung'
-    elif status == '20':
-        filename += 'missed2.txt'
-        sender = exam.teacher.email
-        subject = 'Verpasste Prüfung'
-    else:
-        filename += 'invitation.txt'
+    if invitation:
         sender = chief_supervisor.email
+        filename += 'invitation.txt'
         subject = 'Aufgebot zur Nachprüfung'
-    file = open(filename, encoding='UTF-8')
-    text = file.read()
-    data = {'student.firstname': exam.student.firstname,
-            'student.lastname': exam.student.lastname,
-            'teacher.firstname': exam.teacher.firstname,
-            'teacher.lastname': exam.teacher.lastname,
-            'teacher.email': exam.teacher.email,
-            'chief_supervisor.firstname': chief_supervisor.firstname,
-            'chief_supervisor.lastname': chief_supervisor.lastname,
-            'chief_supervisor.email': chief_supervisor.email,
-            'missed': exam.missed,
-            'module': exam.module,
-            'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
-            'event.time': f'{event.timestamp[14:19]}',
-            'room': exam.room,
-            'tools': exam.tools
-            }
-    text = replace_text(data, text)
-    send_email(sender, exam.student.email, subject, text)
-    return True
+    else:
+        sender = exam.teacher.email
+        if status == '10':
+            filename += 'missed.txt'
+            subject = 'Verpasste Prüfung'
+        else:
+            filename += 'missed2.txt'
+            subject = 'Verpasste Prüfung'
+
+    with open(filename, encoding='UTF-8') as file:
+        text = file.read()
+        data = {'student.firstname': exam.student.firstname,
+                'student.lastname': exam.student.lastname,
+                'teacher.firstname': exam.teacher.firstname,
+                'teacher.lastname': exam.teacher.lastname,
+                'teacher.email': exam.teacher.email,
+                'chief_supervisor.firstname': chief_supervisor.firstname,
+                'chief_supervisor.lastname': chief_supervisor.lastname,
+                'chief_supervisor.email': chief_supervisor.email,
+                'missed': exam.missed,
+                'module': exam.module,
+                'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
+                'event.time': f'{event.timestamp[14:19]}',
+                'room': exam.room,
+                'tools': exam.tools
+                }
+        text = replace_text(data, text)
+        send_email(sender, exam.student.email, subject, text)
 
 
 def send_email(sender, recipient, subject, content):
     """
     sends an email
-    :param sender: email address of the sender
-    :param recipient:  email address of the recipient
+    :param sender: email-address of the sender
+    :param recipient:  email-address of the recipient
     :param subject: subject of the email
     :param content: email text
     :return: None
@@ -135,4 +136,3 @@ def send_email(sender, recipient, subject, content):
     )
     msg.body = content
     mail.send(msg)
-
