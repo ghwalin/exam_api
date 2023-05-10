@@ -110,7 +110,7 @@ def create_email(exam, status, invitation=False):
                 'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
                 'event.time': f'{event.timestamp[14:19]}',
                 'room': exam.room,
-                'tools': exam.tools
+                'tools': exam.tools.replace('CRLF', '\n')
                 }
         text = replace_text(data, text)
         send_email(sender, exam.student.email, subject, text)

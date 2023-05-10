@@ -46,7 +46,7 @@ class AuthenticationService(Resource):
 
             if access is not None:
                 refresh = jwt.encode({
-                    'exp': datetime.utcnow() + timedelta(minutes=60)
+                    'exp': datetime.utcnow() + timedelta(minutes=app.config['TOKEN_DURATION'])
                 },
                     app.config['REFRESH_TOKEN_KEY'], "HS256"
                 )
