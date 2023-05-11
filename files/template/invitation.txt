@@ -1,12 +1,13 @@
 Guten Tag {{student.firstname}} {{student.lastname}}
 
-Sie haben am {{missed}} im Modul {{module}} während der Leistungsbeurteilung gefehlt und werden hiermit zu einer Nachprüfung aufgeboten.
+Sie haben am {{missed}} im Modul {{module}} während der Leistungsbeurteilung bei {{teacher.firstname}} {{teacher.lastname}} gefehlt und werden hiermit zu einer Nachprüfung aufgeboten.
 
 - Datum: {{event.date}}
 - Zeit:
   * Beginn {{event.time}} (danach kein Zutritt mehr!)
   * Türöffnung 15 Minuten vorher
 - Ort: Horgen See, Zimmer {{room}}
+- Dauer: {{duration}} Minuten
 - Hilfsmittel: {{tools}}
 
 Hinweise:

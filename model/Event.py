@@ -15,12 +15,14 @@ class Event:
     timestamp: str
     rooms: list
     supervisors: list
+    status: str
 
     def to_json(self) -> str:
         jstring = '{"event_uuid":"' + self.event_uuid + '",' + \
                   '"datetime": "' + self.timestamp + '",' + \
                   '"supervisors":' + json.dumps(self.supervisors) + ',' + \
-                  '"rooms":' + json.dumps(self.rooms) + '}'
+                  '"rooms":' + json.dumps(self.rooms) + ',' + \
+                  '"status":' + json.dumps(self.status) + '}'
         return jstring
 
     @property
@@ -55,6 +57,13 @@ class Event:
     def supervisors(self, value) -> None:
         self._supervisors = value
 
+    @property
+    def status(self):
+        return self._status
+    
+    @status.setter
+    def status(self, value):
+        self._status = value
 
 if __name__ == '__main__':
     ''' Check if started directly '''

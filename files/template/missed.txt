@@ -1,6 +1,6 @@
 Guten Tag {{student.firstname}} {{student.lastname}}
 
-Sie haben am {{missed}} im Modul {{module}} während der Leistungsbeurteilung gefehlt.
+Sie haben am {{missed}} im Modul {{module}} während der Leistungsbeurteilung bei {{teacher.firstname}} {{teacher.lastname}} gefehlt.
 
 Solange Sie diese Leistungsbeurteilung nicht absolviert haben, erhalten Sie keine Zeugnisnote für dieses Modul.
 
