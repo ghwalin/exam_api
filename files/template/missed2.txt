@@ -6,7 +6,7 @@ Solange Sie diese Prüfung nicht absolviert haben, erhalten Sie keine Zeugnisnot
 Sie müssen die Absenz innerhalb von 4 Wochen unter https://absenzen.bzz.ch quittieren.
 
 Sie müssen die Leistungsbeurteilung am {{event.date}} nachholen.
-Weitere Details zur Nachprüfung finden Sie unter https://exam.it.bzz.ch.
+Weitere Details zur Nachprüfung finden Sie unter https://it.bzz.ch/exam.
 
 Freundliche Grüsse
 

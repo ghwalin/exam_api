@@ -85,7 +85,7 @@ def create_email(exam, status, invitation=False):
     if invitation:
         sender = chief_supervisor.email
         filename += 'invitation.txt'
-        subject = 'Aufgebot zur Nachprüfung'
+        subject = f'Aufgebot zur Nachprüfung vom {event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}'
     else:
         sender = exam.teacher.email
         if status == '10':
