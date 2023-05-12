@@ -65,8 +65,8 @@ class PrintService(Resource):
         for arg in args['exam_uuid']:
             exam_uuid = ''
             if isinstance(arg, list):
-                for c in arg:
-                    exam_uuid += c
+                for character in arg:
+                    exam_uuid += character
             else:
                 exam_uuid = arg
             exam_uuids.append(exam_uuid)
@@ -119,7 +119,9 @@ class PrintService(Resource):
                 if item.get('bold') is not None:
                     style = 'B'
                 pdf.set_font(style=style, family='helvetica')
-                pdf.text(xcoord, ycoord, content)
+                for line in content.split('CRLF'):
+                    pdf.text(xcoord, ycoord, line)
+                    ycoord += 6
             elif item['type'] == 'line':
                 ycoord -= 3
                 xcoord_end = xcoord + item['width'] * 4
@@ -151,8 +153,8 @@ class PrintService(Resource):
                 'module': exam.module,
                 'exam_num': exam.exam_num,
                 'duration': str(exam.duration),
-                'event.date': event.timestamp.split(' ')[0],
-                'event.time': event.timestamp.split(' ')[1],
+                'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
+                'event.time': f'{event.timestamp[14:19]}',
                 'room': exam.room,
                 'tools': exam.tools,
                 'remarks': exam.remarks

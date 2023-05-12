@@ -58,7 +58,7 @@ def make_access_token(email):
         access = jwt.encode({
             'email': email,
             'role': person.role,
-            'exp': datetime.utcnow() + timedelta(minutes=15)
+            'exp': datetime.utcnow() + timedelta(minutes=current_app.config['TOKEN_DURATION'])
         },
             current_app.config['ACCESS_TOKEN_KEY'], "HS256"
         )

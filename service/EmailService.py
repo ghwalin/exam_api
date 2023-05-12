@@ -74,7 +74,7 @@ def create_email(exam, status, invitation=False):
     :param exam: the unique uuid for an exam
     :param status: the status of the exam
     :param invitation: send invitation
-    :return: None
+    :return: successful
     """
     event_dao = EventDAO()
     event = event_dao.read_event(exam.event_uuid)
@@ -85,7 +85,7 @@ def create_email(exam, status, invitation=False):
     if invitation:
         sender = chief_supervisor.email
         filename += 'invitation.txt'
-        subject = 'Aufgebot zur Nachprüfung'
+        subject = f'Aufgebot zur Nachprüfung vom {event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}'
     else:
         sender = exam.teacher.email
         if status == '10':
@@ -94,33 +94,33 @@ def create_email(exam, status, invitation=False):
         else:
             filename += 'missed2.txt'
             subject = 'Verpasste Prüfung'
-    file = open(filename, encoding='UTF-8')
-    text = file.read()
-    data = {'student.firstname': exam.student.firstname,
-            'student.lastname': exam.student.lastname,
-            'teacher.firstname': exam.teacher.firstname,
-            'teacher.lastname': exam.teacher.lastname,
-            'teacher.email': exam.teacher.email,
-            'chief_supervisor.firstname': chief_supervisor.firstname,
-            'chief_supervisor.lastname': chief_supervisor.lastname,
-            'chief_supervisor.email': chief_supervisor.email,
-            'missed': exam.missed,
-            'module': exam.module,
-            'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
-            'event.time': f'{event.timestamp[14:19]}',
-            'room': exam.room,
-            'tools': exam.tools
-            }
-    text = replace_text(data, text)
-    send_email(sender, exam.student.email, subject, text)
-    return True
+
+    with open(filename, encoding='UTF-8') as file:
+        text = file.read()
+        data = {'student.firstname': exam.student.firstname,
+                'student.lastname': exam.student.lastname,
+                'teacher.firstname': exam.teacher.firstname,
+                'teacher.lastname': exam.teacher.lastname,
+                'teacher.email': exam.teacher.email,
+                'chief_supervisor.firstname': chief_supervisor.firstname,
+                'chief_supervisor.lastname': chief_supervisor.lastname,
+                'chief_supervisor.email': chief_supervisor.email,
+                'missed': exam.missed,
+                'module': exam.module,
+                'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
+                'event.time': f'{event.timestamp[14:19]}',
+                'room': exam.room,
+                'tools': exam.tools.replace('CRLF', '\n')
+                }
+        text = replace_text(data, text)
+        send_email(sender, exam.student.email, subject, text)
 
 
 def send_email(sender, recipient, subject, content):
     """
     sends an email
-    :param sender: email address of the sender
-    :param recipient:  email address of the recipient
+    :param sender: email-address of the sender
+    :param recipient:  email-address of the recipient
     :param subject: subject of the email
     :param content: email text
     :return: None
@@ -136,4 +136,3 @@ def send_email(sender, recipient, subject, content):
     )
     msg.body = content
     mail.send(msg)
-

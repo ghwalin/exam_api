@@ -69,7 +69,8 @@ class EventDAO:
                 item['event_uuid'],
                 item['timestamp'],
                 item['rooms'],
-                item['supervisors']
+                item['supervisors'],
+                item['status']
             )
             self._eventdict[key] = event
 

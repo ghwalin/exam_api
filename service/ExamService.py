@@ -32,7 +32,7 @@ class ExamService(Resource):
         self.parser.add_argument('module', location='form', default=None, help='module')
         self.parser.add_argument('exam_num', location='form', default=None, help='exam-num')
         self.parser.add_argument('duration', location='form', type=int, default=0, help='Muss eine Ganzzahl sein')
-        self.parser.add_argument('room', location='form', type=str, default='offen', help='Raum')
+        self.parser.add_argument('room', location='form', type=str, default=None, help='Raum')
         self.parser.add_argument('missed', location='form', default=None, help='Muss ein gültiges Datum sein')
         self.parser.add_argument('remarks', location='form', default=None, help='remarks')
         self.parser.add_argument('tools', location='form', default=None, help='tools')
@@ -65,6 +65,7 @@ class ExamService(Resource):
         :return: http response
         """
         args = self.parser.parse_args()
+        args.room = 'offen'
         if self.save(args):
             return make_response('exam saved', 201)
         else:
