@@ -1,7 +1,8 @@
+import io
 import json
 import uuid
 
-from flask import make_response, current_app
+from flask import make_response, current_app, send_file
 from flask_restful import Resource, reqparse
 from fpdf import FPDF
 
@@ -40,7 +41,6 @@ class PrintService(Resource):
         filename = current_app.config['TEMPLATEPATH'] + 'sheet.json'
         file = open(filename, encoding='UTF-8')
         texts = json.load(file)
-        http_status = 404
         if exam is not None:
             pdf = FPDF()
             pdf.set_font('helvetica', '', 12)
@@ -48,10 +48,14 @@ class PrintService(Resource):
             pdf.set_line_width(0.5)
             data = self.build_dict(exam)
             self.make_page(data, texts, pdf)
-            response = make_response(pdf.output())
-            response.headers["Content-Type"] = "application/pdf"
-            return response
-        return make_response('not found', http_status)
+
+            return send_file(io.BytesIO(pdf.output()),
+                             mimetype='application/pdf',
+                             as_attachment=True,
+                             download_name='cover.pdf'
+                             )
+        else:
+            return make_response('not found', 404)
 
     @token_required
     @teacher_required
