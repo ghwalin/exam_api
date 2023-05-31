@@ -66,7 +66,7 @@ class ExamService(Resource):
         """
         args = self.parser.parse_args()
         args.room = 'offen'
-        if self.save(args):
+        if self.save(args, True):
             return make_response('exam saved', 201)
         else:
             return make_response('missing parameters', 400)
@@ -79,18 +79,23 @@ class ExamService(Resource):
         :return:
         """
         args = self.parser.parse_args()
-        if self.save(args):
+        if self.save(args, False):
             return make_response('exam saved', 201)
         else:
             return make_response('missing parameters', 400)
 
-    def save(self, args):
+    def save(self, args, new: bool):
         """
         saves the new or updated exam
         :param args:
+        :param new: is a new exam
         :return:
         """
         exam_dao = ExamDAO()
+        if new is False:
+            if exam_dao.read_exam(args.exam_uuid) is None:
+                return False
+
         person_dao = PersonDAO()
         teacher = None
         if args.teacher is not None:
@@ -117,8 +122,7 @@ class ExamService(Resource):
             status=args.status
         )
 
-        exam_dao.save_exam(exam)
-        return True
+        return exam_dao.save_exam(exam)
 
 
 if __name__ == '__main__':

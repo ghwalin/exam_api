@@ -87,7 +87,7 @@ class ExamDAO:
             return self._examdict[uuid]
         return None
 
-    def save_exam(self, exam: Exam) -> None:
+    def save_exam(self, exam: Exam) -> bool:
         """
         saves a new or changed exam
         :param exam:
@@ -95,7 +95,7 @@ class ExamDAO:
         """
         if exam.exam_uuid not in self._examdict:
             self._examdict[exam.exam_uuid] = exam
-        old = self._examdict[exam.exam_uuid]
+        old = self._examdict.get(exam.exam_uuid, None)
 
         if exam.event_uuid is not None:
             old.event_uuid = exam.event_uuid
@@ -131,6 +131,7 @@ class ExamDAO:
         file = open(current_app.config['DATAPATH'] + 'exams.json', 'w', encoding='UTF-8')
         file.write(exams_json)
         file.close()
+        return True
 
     def load_exams(self) -> None:
         """
