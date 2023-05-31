@@ -83,11 +83,13 @@ def create_email(exam, status, invitation=False):
     filename = current_app.config['TEMPLATEPATH']
 
     if invitation:
-        sender = chief_supervisor.email
+        sender = [chief_supervisor.email]
+        if exam.teacher.email != chief_supervisor.email:
+            sender.append(exam.teacher.email)
         filename += 'invitation.txt'
         subject = f'Aufgebot zur Nachprüfung vom {event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}'
     else:
-        sender = exam.teacher.email
+        sender = [exam.teacher.email]
         if status == '10':
             filename += 'missed.txt'
             subject = 'Verpasste Prüfung'
@@ -131,8 +133,8 @@ def send_email(sender, recipient, subject, content):
         subject=subject,
         sender=current_app.config['MAIL_USERNAME'],
         recipients=[recipient],
-        reply_to=sender,
-        cc=[sender]
+        reply_to=sender[0],
+        cc=sender
     )
     msg.body = content
     mail.send(msg)
