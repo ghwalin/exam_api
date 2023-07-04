@@ -38,9 +38,13 @@ class PeoplelistService(Resource):
             data = person.to_json()
             people_json += data + ','
         people_json = '[' + people_json[:-1] + ']'
-        return make_response(
-            people_json, 200
+
+        response = make_response(
+            people_json,
+            200
         )
+        response.headers["Content-Type"] = "application/json"
+        return response
 
 
 if __name__ == '__main__':

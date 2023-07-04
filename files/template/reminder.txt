@@ -1,0 +1,15 @@
+Guten Tag {{teacher.firstname}} {{teacher.lastname}}
+
+Für die Nachprüfung vom {{event.date}} fehlen mir noch die Prüfungsunterlagen:
+- Kandidat: {{student.firstname}} {{student.lastname}}
+- Fach/Modul: {{module}}
+
+Falls die Nachprüfung elektronisch ohne Papierunterlagen durchgeführt wird, ändere den Status zu "elektronisch".
+Bitte deponiere die Unterlagen spätestens 2 Tage vor dem Nachprüfungstermin im Lehrerzimmer Horgen.
+
+Freundliche Grüsse
+
+Bildungszentrum Zürichsee
+{{chief_supervisor.firstname}} {{chief_supervisor.lastname}}
+{{chief_supervisor.email}}
+https://exam.it.bzz.ch

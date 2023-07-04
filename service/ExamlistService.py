@@ -47,14 +47,16 @@ class ExamlistService(Resource):
                 data = exam.to_json()
                 exams_json += data + ','
             exams_json = exams_json[:-1] + ']'
-            return make_response(
-                exams_json, 200
+            response = make_response(
+                exams_json,
+                200
             )
+            response.headers["Content-Type"] = "application/json"
+            return response
         else:
             return make_response(
                 '[]', 404
             )
-
 
 if __name__ == '__main__':
     ''' Check if started directly '''

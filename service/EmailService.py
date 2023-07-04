@@ -34,23 +34,24 @@ class EmailService(Resource):
         :param status: the template for the email
         :return: http response
         """
-        if status not in [None, '10', '20', '30', '40']:
-            return make_response('error', 500)
+        if status not in [None, '10', '20', '30', '35', '40']:
+            return make_response('{"message": "invalid status"}', 500)
 
         exam_dao = ExamDAO()
         exam = exam_dao.read_exam(exam_uuid)
         if exam is None:
-            return make_response('not found', 404)
+            return make_response('{"message": "not found"}', 404)
 
         create_email(exam, status)
         http_status = 200
-        return make_response('email sent', http_status)
+        return make_response('{"message": "email sent"}', http_status)
 
     @token_required
     @teacher_required
-    def put(self):
+    def put(self, type):
         """
         sends an email to each student in a list of exams
+        :param type: the type of email to send
         :return: response with path to pdf
         """
         args = self.parser.parse_args()

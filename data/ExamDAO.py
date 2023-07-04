@@ -32,7 +32,7 @@ def condition(exam: Exam, student: str, teacher: str, date: str, status: str) ->
             return False
         if status is None or status == '':
             status = 'all'
-        if exam.status in ['10', '20', '30', '40'] and status not in ['open', 'all']:
+        if exam.status in ['10', '20', '30', '35', '40'] and status not in ['open', 'all']:
             return False
         if exam.status in ['50', '80', '90'] and status not in ['closed', 'all']:
             return False
@@ -125,7 +125,7 @@ class ExamDAO:
         exams_json = '['
         for key in self._examdict:
             data = self._examdict[key].to_json(False)
-            exams_json += data + ','
+            exams_json += data.replace('\n', '\\\\n') + ','
         exams_json = exams_json[:-1] + ']'
 
         file = open(current_app.config['DATAPATH'] + 'exams.json', 'w', encoding='UTF-8')

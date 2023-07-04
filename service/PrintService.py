@@ -119,7 +119,10 @@ class PrintService(Resource):
                 if item.get('bold') is not None:
                     style = 'B'
                 pdf.set_font(style=style, family='helvetica')
-                pdf.text(xcoord, ycoord, content)
+
+                for line in content.split('\\n'):
+                    pdf.text(xcoord, ycoord, line)
+                    ycoord += 6
             elif item['type'] == 'line':
                 ycoord -= 3
                 xcoord_end = xcoord + item['width'] * 4
