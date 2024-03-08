@@ -125,7 +125,7 @@ class ExamDAO:
         exams_json = '['
         for key in self._examdict:
             data = self._examdict[key].to_json(False)
-            exams_json += data.replace('\n', '\\\\n') + ','
+            exams_json += data.replace('\n', 'CRLF') + ','
         exams_json = exams_json[:-1] + ']'
 
         file = open(current_app.config['DATAPATH'] + 'exams.json', 'w', encoding='UTF-8')

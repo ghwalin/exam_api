@@ -32,7 +32,7 @@ class ExamService(Resource):
         self.parser.add_argument('module', location='form', default=None, help='module')
         self.parser.add_argument('exam_num', location='form', default=None, help='exam-num')
         self.parser.add_argument('duration', location='form', type=int, default=0, help='Muss eine Ganzzahl sein')
-        self.parser.add_argument('room', location='form', type=str, default='offen', help='Raum')
+        self.parser.add_argument('room', location='form', type=str, default=None, help='Raum')
         self.parser.add_argument('missed', location='form', default=None, help='Muss ein gültiges Datum sein')
         self.parser.add_argument('remarks', location='form', default=None, help='remarks')
         self.parser.add_argument('tools', location='form', default=None, help='tools')
@@ -65,7 +65,8 @@ class ExamService(Resource):
         :return: http response
         """
         args = self.parser.parse_args()
-        if self.save(args):
+        args.room = 'offen'
+        if self.save(args, True):
             return make_response('exam saved', 201)
         else:
             return make_response('missing parameters', 400)
@@ -78,18 +79,23 @@ class ExamService(Resource):
         :return:
         """
         args = self.parser.parse_args()
-        if self.save(args):
+        if self.save(args, False):
             return make_response('exam saved', 201)
         else:
             return make_response('missing parameters', 400)
 
-    def save(self, args):
+    def save(self, args, new: bool):
         """
         saves the new or updated exam
         :param args:
+        :param new: is a new exam
         :return:
         """
         exam_dao = ExamDAO()
+        if new is False:
+            if exam_dao.read_exam(args.exam_uuid) is None:
+                return False
+
         person_dao = PersonDAO()
         teacher = None
         if args.teacher is not None:
@@ -116,8 +122,7 @@ class ExamService(Resource):
             status=args.status
         )
 
-        exam_dao.save_exam(exam)
-        return True
+        return exam_dao.save_exam(exam)
 
 
 if __name__ == '__main__':

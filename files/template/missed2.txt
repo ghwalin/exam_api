@@ -1,12 +1,12 @@
 Guten Tag {{student.firstname}} {{student.lastname}}
 
-Sie haben am {{missed}} im Fach/Modul {{module}} während der Prüfung gefehlt.
+Sie haben am {{missed}} im Fach/Modul {{module}} während der Prüfung bei {{teacher.firstname}} {{teacher.lastname}} gefehlt.
 
 Solange Sie diese Prüfung nicht absolviert haben, erhalten Sie keine Zeugnisnote.
 Sie müssen die Absenz innerhalb von 4 Wochen unter https://absenzen.bzz.ch quittieren.
 
 Sie müssen die Leistungsbeurteilung am {{event.date}} nachholen.
-Weitere Details zur Nachprüfung finden Sie unter https://exam.it.bzz.ch.
+Weitere Details zur Nachprüfung finden Sie unter https://it.bzz.ch/exam.
 
 Freundliche Grüsse
 

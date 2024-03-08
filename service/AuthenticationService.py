@@ -46,7 +46,7 @@ class AuthenticationService(Resource):
 
             if access is not None:
                 refresh = jwt.encode({
-                    'exp': datetime.utcnow() + timedelta(minutes=60)
+                    'exp': datetime.utcnow() + timedelta(minutes=app.config['TOKEN_DURATION'])
                 },
                     app.config['REFRESH_TOKEN_KEY'], "HS256"
                 )
@@ -60,7 +60,7 @@ class AuthenticationService(Resource):
 
             return make_response('could not verify', 404, {'Authentication': '"login failed"'})
 
-        except Exception:
+        except Exception as ex:
             app.logger.info("Invalid token!")
             return make_response(jsonify({"message": "EXAM/login: Invalid token!"}), 401)
 
@@ -79,8 +79,8 @@ def decode_id_token(token):
             key=rsa_pem_key_bytes,
             verify=True,
             algorithms=[token_alg],
-            audience='8b113aa0-1d94-4f7b-a5e7-c7157e1c7b90',
-            issuer="https://login.microsoftonline.com/12ea5aa9-906c-4d84-86d2-4713c6ae66d3/v2.0"
+            audience=app.config['MSAL_AUDIENCE'],
+            issuer=app.config['MSAL_ISSUER']
         )
         return decoded_token
     except Exception:
