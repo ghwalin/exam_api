@@ -15,7 +15,6 @@ from service.PrintService import PrintService
 
 from logging.config import dictConfig
 
-
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -66,6 +65,6 @@ def create_app():
 
     return app
 
+app = create_app()
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)
