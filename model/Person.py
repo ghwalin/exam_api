@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 
 
@@ -16,22 +17,15 @@ class Person(dict):
     role: str = ' '
 
     def to_json(self) -> str:
-        person_json = '{{' \
-                   '"email": "{email}",' \
-                   '"firstname": "{firstname}",' \
-                   '"lastname": "{lastname}",' \
-                   '"fullname": "{fullname}",' \
-                   '"department":"{department}",' \
-                   '"role":"{role}"' \
-                   '}}' \
-            .format(
-                email=self.email,
-                firstname=self.firstname,
-                lastname=self.lastname,
-                fullname=self.fullname,
-                department=self.department,
-                role=self.role
-            )
+        data = {
+            'email': self.email,
+            'firstname': self.firstname,
+            'lastname': self.lastname,
+            'fullname': self.fullname,
+            'department': self.department,
+            'role': self.role
+        }
+        person_json = json.dumps(data)
         return person_json
 
     @property

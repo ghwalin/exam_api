@@ -121,8 +121,8 @@ class ExamService(Resource):
             event_uuid=args.event_uuid,
             status=args.status
         )
-
-        return exam_dao.save_exam(exam)
+        exam_dao.save_exam(exam)
+        return True
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, asdict
 import datetime
 import logging
 from dateutil import parser
@@ -29,23 +30,29 @@ class Exam(dict):
 
     def to_json(self, response=True) -> str:
         try:
-            jstring = '{"exam_uuid":"' + self.exam_uuid + '",'
-            jstring += '"cohort": "' + self.cohort + '", '
-            jstring += '"module": "' + self.module + '", '
-            jstring += '"exam_num": "' + self.exam_num + '", '
-            jstring += '"missed": "' + self.missed.strftime("%Y-%m-%d") + '", '
-            jstring += '"duration": ' + str(self.duration) + ', '
-            jstring += '"room": "' + self.room + '",'
-            jstring += '"remarks": "' + self.remarks + '", '
-            jstring += '"tools": "' + self.tools + '", '
-            jstring += '"event_uuid": "' + self.event_uuid + '", '
-            jstring += '"status": "' + self.status + '", '
+            data = {
+                 'exam_uuid': self.exam_uuid,
+                 'cohort': self.cohort,
+                 'module':self.module,
+                 'exam_num':self.exam_num,
+                 'missed':self.missed.strftime("%Y-%m-%d"),
+                 'duration': str(self.duration),
+                 'room':self.room,
+                 'remarks':self.remarks,
+                 'tools':self.tools,
+                 'event_uuid':self.event_uuid,
+                 'status':self.status,
+            }
+
             if response:
-                jstring += '"teacher": ' + self.teacher.to_json() + ',' + \
-                           '"student": ' + self.student.to_json() + '}'
+                data['teacher'] = asdict(self.teacher)
+                data['teacher']['fullname'] = self.teacher.fullname
+                data['student'] = asdict(self.student)
+                data['student']['fullname'] = self.student.fullname
             else:
-                jstring += '"teacher":"' + self.teacher.email + '",' + \
-                           '"student":"' + self.student.email + '"}'
+                data['teacher'] = self.teacher.email
+                data['student'] = self.student.email
+            jstring = json.dumps(data)
             return jstring
 
         except Exception:

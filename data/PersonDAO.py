@@ -64,10 +64,11 @@ class PersonDAO:
             if key.casefold() == email.casefold():
                 return item
         return Person(
-            email,
-            '***Konto gelöscht***',
-            email,
-            'student'
+            email=email,
+            firstname='***Konto gelöscht***',
+            lastname='',
+            department='',
+            role='student'
         )
 
     def load_people(self) -> None:
