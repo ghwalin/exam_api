@@ -1,0 +1,71 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css");
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 30px;
+}
+
+footer .text-center {
+    color: var(--bs-cyan);
+    border-top: var(--bs-cyan) 2px solid;
+}
+
+fieldset {
+    padding: 5px;
+    margin: 5px 0;
+}
+
+#status option[value=""] {
+    color: var(--bs-red);
+    font-weight: bold;
+}
+
+#status:invalid {
+    color: var(--bs-red);
+}
+
+#popup {
+    position: fixed;
+    z-index: 99;
+    pointer-events: none;
+    height: 100px;
+    top: 10px;
+    width: 100%;
+}
+
+#messages {
+    position: fixed;
+    pointer-events: none;
+    min-height: 20px;
+    width: 350px;
+    right: 50px;
+    padding: 10px;
+}
+
+.nav-item, .navbar-brand {
+    color: var(--bs-cyan) !important;
+}
+
+.form-label {
+    margin-top: 0.8rem;
+    margin-bottom: 0.2rem;
+}
+
+.table thead {
+    position: sticky;
+    top: 0;
+    background: white;
+    inset-block-start: 0;
+}

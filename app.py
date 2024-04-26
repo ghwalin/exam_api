@@ -60,11 +60,21 @@ def create_app():
     api.add_resource(PrintService, '/print', '/print/<exam_uuid>')
 
     @app.route('/output/<filename>')
-    def page(filename):
+    def send_pdf(filename):
         return send_from_directory('output', filename)
+
+    @app.route('/')
+    @app.route('/<filename>')
+    @app.route('/<folder>/<filename>')
+    def send_file(folder=None, filename='index.html'):
+        directory = 'static/'
+        if folder is not None:
+            directory += folder
+        return send_from_directory(directory, filename)
 
     return app
 
 app = create_app()
 if __name__ == '__main__':
+
     app.run(debug=True)

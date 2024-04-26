@@ -1,3 +1,5 @@
 .idea/
 .env
 /venv/
+/static/js/config.js
+/static/js/news.js

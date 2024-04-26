@@ -82,6 +82,7 @@ def create_email(exam, status):
     chief_supervisor = person_dao.read_person(event.supervisors[0])
     filename = current_app.config['TEMPLATEPATH']
 
+    cc = [exam.teacher.email]
     if status == '10':
         filename += 'missed.txt'
         sender = exam.teacher.email
@@ -93,6 +94,8 @@ def create_email(exam, status):
     else:
         filename += 'invitation.txt'
         sender = chief_supervisor.email
+        if chief_supervisor.email != exam.teacher.email:
+            cc.append(exam.teacher.email)
         subject = 'Aufgebot zur Nachprüfung'
     file = open(filename, encoding='UTF-8')
     text = file.read()
@@ -112,15 +115,16 @@ def create_email(exam, status):
             'tools': exam.tools
             }
     text = replace_text(data, text)
-    send_email(sender, exam.student.email, subject, text)
+    send_email(sender, exam.student.email, cc, subject, text)
     return True
 
 
-def send_email(sender, recipient, subject, content):
+def send_email(sender, recipient, carboncopy, subject, content):
     """
     sends an email
     :param sender: email address of the sender
     :param recipient:  email address of the recipient
+    :param carboncopy: the cc recipients
     :param subject: subject of the email
     :param content: email text
     :return: None
@@ -132,7 +136,7 @@ def send_email(sender, recipient, subject, content):
         sender=current_app.config['MAIL_USERNAME'],
         recipients=[recipient],
         reply_to=sender,
-        cc=[sender]
+        cc=carboncopy
     )
     msg.body = content
     mail.send(msg)

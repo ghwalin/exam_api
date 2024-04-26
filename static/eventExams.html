@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="author" content="Marcel Suter">
+  <title>Nachprüfung</title>
+  <script src="./js/config.js"></script>
+  <script src="./js/util.js"></script>
+  <script src="./js/personData.js"></script>
+  <script src="./js/eventData.js"></script>
+  <script src="./js/examData.js"></script>
+  <script src="./js/loginCtrl.js"></script>
+  <script src="./js/eventExamCtrl.js" defer></script>
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/exam.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body class="d-flex flex-column h-100">
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container-xxl">
+    <a class="navbar-brand" href="#">
+      <img src="./img/BZZ_Logo_Web.png" alt="" width="40" height="40"/>
+      BZZ Nachprüfungen
+    </a>
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="./examList.html">Prüfungen</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="./eventExams.html">Aufsicht</a>
+      </li>
+    </ul>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item ms-auto">
+          <a class="nav-link" aria-current="page" href="https://it.bzz.ch/wikiV2/howto/exam/start"
+             target="_blank">Anleitung</a>
+        </li>
+        <li>
+          <a id="logout" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="black"
+                 class="bi bi-box-arrow-right"
+                 viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                    d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+              <path fill-rule="evenodd"
+                    d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div id="popup">
+  <div id="messages" class="alert" role="alert"></div>
+</div>
+<main class="container-xxl">
+  <div id="list" class="col-12">
+    <form id="filterForm">
+      <table id="examlist" class="table table-striped">
+        <thead class="table-info">
+        <tr>
+          <th scope="col" colspan="3">
+            <select id="dateSearch" data-edit="all" class="form-select">
+              <option value="">Datum auswählen ...</option>
+            </select>
+          </th>
+          <th>&nbsp;</th>
+          <th scope="col">
+            Aufsicht
+          </th>
+          <th scope="col" colspan="4">
+            <span class="form-label" id="email"></span>
+          </th>
+        </tr>
+        <tr>
+          <th scope="col" colspan="9">
+            <button type="button" id="sendEmail" class="btn btn-primary"
+                    title="Aufgebot an Lernende per Email senden">
+              <span class='text-light'><i class='bi bi-at'></i></span>
+              Aufgebot senden
+            </button>
+            <!-- Version 1.2
+            <button type="button" id="sendReminder" class="btn btn-secondary"
+                    title="Erinnerung an Lehrperson zur Abgabe der Prüfungsunterlagen">
+              <span class='text-light'><i class='bi bi-at'></i></span>
+              Erinnerung Unterlagen senden
+            </button>
+            -->
+            <button type="button" id="createPDF" class="btn btn-primary" title="Datenblätter als PDF">
+              <span class='text-light'><i class='bi bi-file-earmark-pdf'></i></span>
+              Datenblätter
+            </button>
+          </th>
+        </tr>
+        <tr>
+          <th scope="col">
+            <input type="checkbox" id="selectAll" class="form-check-input"/>
+          </th>
+          <th scope="col">#</th>
+          <th scope="col">
+            Status
+            <i class="bi bi-question-circle-fill text-info"
+               title="pendent (Arztzeugnis ist pendent)&#013;offen (Prüfungsunterlagen noch nicht abgegeben)&#013;abgegeben (Prüfungsunterlagen abgegeben)&#013;elektronisch (keine Papierunterlagen)&#013;erhalten (Aufsicht hat Prüfung erhalten)&#013;absolviert (Prüfung absolviert)&#013;pnab (Prüfung nicht absolviert)&#013;gelöscht (Eintrag gelöscht)"></i>
+          </th>
+          <th scope="col">Raum</th>
+          <th scope="col">Lernender</th>
+          <th scope="col">Lehrperson</th>
+          <th scope="col">Fach / Prüfung</th>
+          <th scope="col">Dauer</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="8">Anzahl Kandidaten: <span id="distinct"></span></td>
+          </tr>
+        </tfoot>
+      </table>
+    </form>
+  </div>
+
+</main>
+<footer class="text-center text-lg-start">
+  <div class="container-xxl text-info text-center p-3">
+    Exam v1.1r20230516 &copy; 2023 by Marcel Suter
+  </div>
+</footer>
+</body>
+</html>
