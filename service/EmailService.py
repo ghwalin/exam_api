@@ -95,7 +95,7 @@ def create_email(exam, status):
         filename += 'invitation.txt'
         sender = chief_supervisor.email
         if chief_supervisor.email != exam.teacher.email:
-            cc.append(exam.teacher.email)
+            cc.append(chief_supervisor.email)
         subject = 'Aufgebot zur Nachprüfung'
     file = open(filename, encoding='UTF-8')
     text = file.read()
@@ -115,6 +115,7 @@ def create_email(exam, status):
             'tools': exam.tools
             }
     text = replace_text(data, text)
+    current_app.logger.info(f'cc={cc}')
     send_email(sender, exam.student.email, cc, subject, text)
     return True
 

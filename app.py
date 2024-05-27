@@ -61,7 +61,7 @@ def create_app():
 
     @app.route('/output/<filename>')
     def send_pdf(filename):
-        return send_from_directory('output', filename)
+        return send_from_directory(app.config['OUTPUTPATH'], filename)
 
     @app.route('/')
     @app.route('/<filename>')
