@@ -1,13 +1,25 @@
 Guten Tag {{student.firstname}} {{student.lastname}}
 
-Sie haben am {{missed}} im Fach/Modul {{module}} während der Prüfung bei {{teacher.firstname}} {{teacher.lastname}} gefehlt.
+Sie haben im Fach/Modul {{module}} während der Leistungsbeurteilung gefehlt.
 
-UNBEKANNTES DATUM
+Solange Sie diese Leistungsbeurteilung nicht absolviert haben, erhalten Sie keine Zeugnisnote für dieses Modul.
+
+Das weitere Vorgehen:
+1. Sie müssen innerhalb von 2 Wochen ein Arztzeugnis vorlegen, andernfalls wird die Note 1.0 erteilt.
+  Sofern Sie das Arztzeugnis fristgerecht vorlegen, können Sie die Leistungsbeurteilung am nachholen.
+
+2. Vereinbaren Sie mit Ihrer Fachlehrperson {{teacher.firstname}} {{teacher.lastname}} einen Termin für die Nachprüfung.
 
 {{eventlist}}
+Die Termine finden Sie auch unter https://www.bzz.ch/schulbetrieb/kalender/
+
+3. Innerhalb von 4 Wochen müssen Sie Ihre Absenz https://absenzen.bzz.ch quittieren.
+
+Weitere Details zur Nachprüfung finden Sie unter https://exam.bzz.ch.
+
+Die Rechtsgrundlagen finden sich in den Ausführungsbestimmungen zu Leistungsbeurteilung im Abschnitt 4 der Bildungsverordnung und im RQV unter §9 und §14.
 
 Freundliche Grüsse
 
 Bildungszentrum Zürichsee
 {{teacher.firstname}} {{teacher.lastname}}
-{{teacher.email}}
