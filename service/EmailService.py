@@ -83,20 +83,23 @@ def create_email(exam, status):
     filename = current_app.config['TEMPLATEPATH']
 
     cc = [exam.teacher.email]
-    if status == '10':
-        filename += 'missed.txt'
-        sender = exam.teacher.email
-        subject = 'Verpasste Prüfung'
-    elif status == '20':
-        filename += 'missed2.txt'
-        sender = exam.teacher.email
-        subject = 'Verpasste Prüfung'
-    else:
+    if status > '20':
         filename += 'invitation.txt'
         sender = chief_supervisor.email
         if chief_supervisor.email != exam.teacher.email:
             cc.append(chief_supervisor.email)
         subject = 'Aufgebot zur Nachprüfung'
+    else:
+        sender = exam.teacher.email
+        subject = 'Verpasste Prüfung'
+        if status == '10' and event.status == 'unassigned':
+            filename += 'missed_open.txt'
+        elif status == '20' and event.status == 'unassigned':
+            filename += 'missed_open.txt'
+        else:
+            filename += 'missed2.txt'
+
+
     file = open(filename, encoding='UTF-8')
     text = file.read()
     data = {'student.firstname': exam.student.firstname,
@@ -111,6 +114,7 @@ def create_email(exam, status):
             'module': exam.module,
             'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
             'event.time': f'{event.timestamp[14:19]}',
+            'eventlist': event_dao.open_events(),
             'room': exam.room,
             'tools': exam.tools
             }

@@ -69,3 +69,7 @@ fieldset {
     background: white;
     inset-block-start: 0;
 }
+
+.clickable {
+    text-decoration: underline;
+}

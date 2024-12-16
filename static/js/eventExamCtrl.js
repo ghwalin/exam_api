@@ -16,11 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("sendEmail").addEventListener("click", sendInvitation);
         // document.getElementById("sendReminder").addEventListener("click", sendReminder);  TODO Version 1.2
         document.getElementById("createPDF").addEventListener("click", createAllPDF);
+        document.getElementById("student").addEventListener("click", changeSort);
+        document.getElementById("status").addEventListener("click", changeSort);
     }
 });
 
 /**
- * search people with delay upon input
+ * Search all exams filtered by the selected date
  */
 function searchExamlist() {
     showMessage("info", "wird geladen", 2);
@@ -36,6 +38,28 @@ function searchExamlist() {
     }).catch(result => {
         console.log(result);
     });
+}
+
+function changeSort(event) {
+    /**
+     * Changes the sort order
+     * @param event the event calling this function
+     */
+    const urlParams = new URLSearchParams(window.location.search);
+    let fieldId = event.target.id;
+    if (fieldId === "status") {
+        urlParams.set("sort", "status");
+        document.getElementById('statusArrow').innerHTML = '&uarr;';
+        document.getElementById('studentArrow').innerText = '';
+    } else {
+        urlParams.set("sort", "name");
+        document.getElementById('statusArrow').innerText = '';
+        document.getElementById('studentArrow').innerHTML = '&uarr;';
+    }
+    let newURL = location.protocol + '//' + location.host + location.pathname + "?" + urlParams.toString();
+    history.pushState(null, null, newURL);
+    searchExamlist();
+
 }
 
 /**
@@ -54,7 +78,13 @@ function showExamlist(data, locked) {
             .getElementsByTagName("tbody")[0];
         rows.innerHTML = "";
         if (data !== "[]") {
-            data.sort(sortExams);
+            let sortField = "status";
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has("sort")) {
+                sortField = urlParams.get("sort");
+            }
+
+            data.sort(sortExams(sortField));
             let prevEmail = "";
             let count = 0;
             let distinctStudent = {};
@@ -153,20 +183,32 @@ function addOptions(field) {
 
 
 /**
- * compares to exams
+ * compares two exams
+ * @param property  the sort field
  * @param examA
  * @param examB
  * @returns compare result
  */
-function sortExams(examA, examB) {
-    if (examA.status < examB.status) return -1;
-    if (examA.status > examB.status) return 1;
-    if (examA.room < examB.room) return -1;
-    if (examA.room > examB.room) return 1;
+function sortExams(property) {
+    return function(examA, examB)
+    {
+        if (property === "name") {
+            const compareFirst = examA.student.firstname.localeCompare(examB.student.firstname);
+            if (compareFirst !== 0) return compareFirst;
 
-    const compare = examA.student.lastname.toString().localeCompare(examB.student.lastname.toString());
-    if (compare !== 0) return compare;
-    return examA.student.firstname.localeCompare(examB.student.firstname);
+            const compareLast = examA.student.lastname.toString().localeCompare(examB.student.lastname.toString());
+            if (compareLast !== 0) return compareLast;
+            return
+        }
+        if (examA.status < examB.status) return -1;
+        if (examA.status > examB.status) return 1;
+        if (examA.room < examB.room) return -1;
+        if (examA.room > examB.room) return 1;
+
+        const compare = examA.student.lastname.toString().localeCompare(examB.student.lastname.toString());
+        if (compare !== 0) return compare;
+        return examA.student.firstname.localeCompare(examB.student.firstname);
+    }
 }
 
 /**

@@ -52,7 +52,8 @@ function setEventList(data, elementIds) {
                 let copy = option.cloneNode(true);
 
                 if (targets[key].id === "event_uuid" &&
-                examEvent.status !== "open") {
+                    (examEvent.status !== "open" && examEvent.status !== "unassigned")
+                ) {
                     copy.disabled = true;
                     copy.setAttribute("data-locked", locked);
                 }
@@ -79,7 +80,11 @@ function sortEventList(eventArray) {
 
         const key = examEvent.event_uuid;
         eventList[key] = examEvent;
-        eventList[key].datetime = new Date(examEvent.datetime).toLocaleDateString();
+        if (examEvent.status === 'unassigned') {
+            eventList[key].datetime = 'unbestimmt';
+        } else {
+            eventList[key].datetime = new Date(examEvent.datetime).toLocaleDateString();
+        }
     });
 
     future.sort((a, b) => {

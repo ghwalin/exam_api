@@ -41,6 +41,17 @@ class EventDAO:
                     break
         return filtered
 
+    def open_events(self):
+        """
+        returns a listing of all open events
+        """
+        listing = ''
+        for (key, event) in self._eventdict.items():
+            if event.status == 'open':
+                listing += event.timestamp + '\n'
+
+        return listing
+
     def read_event(self, uuid: str) -> Event:
 
         """

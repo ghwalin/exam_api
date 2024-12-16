@@ -1,0 +1,13 @@
+Guten Tag {{student.firstname}} {{student.lastname}}
+
+Sie haben am {{missed}} im Fach/Modul {{module}} während der Prüfung bei {{teacher.firstname}} {{teacher.lastname}} gefehlt.
+
+UNBEKANNTES DATUM
+
+{{eventlist}}
+
+Freundliche Grüsse
+
+Bildungszentrum Zürichsee
+{{teacher.firstname}} {{teacher.lastname}}
+{{teacher.email}}
