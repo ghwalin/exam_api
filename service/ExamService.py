@@ -65,7 +65,7 @@ class ExamService(Resource):
         :return: http response
         """
         args = self.parser.parse_args()
-        args.room = 'offen'
+        args.room = 'H100'
         if self.save(args, True):
             return make_response('exam saved', 201)
         else:

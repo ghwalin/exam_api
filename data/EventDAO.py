@@ -1,4 +1,5 @@
 import json
+from time import strptime, strftime
 from typing import List
 
 from dateutil import parser
@@ -48,7 +49,7 @@ class EventDAO:
         listing = ''
         for (key, event) in self._eventdict.items():
             if event.status == 'open':
-                listing += event.timestamp + '\n'
+                listing += '  *' + strftime('%d.%m.%Y %H:%M', event.timestamp) + '\n'
 
         return listing
 
