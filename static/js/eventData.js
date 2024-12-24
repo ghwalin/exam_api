@@ -40,6 +40,7 @@ function setEventList(data, elementIds) {
             if (examEvent.diff !== 0) {
                 option.text = eventList[examEvent.event_uuid].datetime;
                 option.setAttribute("data-supervisor", examEvent.supervisors[0]);
+                option.setAttribute("data-eventStatus", examEvent.status);
                 examEvent.supervisors.forEach(supervisor => {
                     if (supervisor === user) locked = "false";
                 });

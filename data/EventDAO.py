@@ -65,6 +65,26 @@ class EventDAO:
             return self._eventdict[uuid]
         return None
 
+    def update_event(self, event_uuid, status):
+        """
+        Update the status of one event
+        """
+        if event_uuid in self._eventdict:
+            event = self._eventdict[event_uuid]
+            event['status'] = status
+            self.save_events()
+            return True
+        return False
+
+
+    def save_events(self):
+        """
+        Saves the events
+        """
+
+        with open(current_app.config['DATAPATH'] + 'events.json', 'w', encoding='UTF-8') as outfile:
+            json.dump(self._eventdict, outfile)
+
     def load_events(self) -> None:
 
         """

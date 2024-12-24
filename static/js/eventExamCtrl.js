@@ -8,12 +8,13 @@ readEventList(["dateSearch"]);
 /* main listener */
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("selectAll").checked = false;
-    if (role === "student") {
+    if (role !== "teacher") {
         window.location.href = "./";
     } else {
         document.getElementById("dateSearch").addEventListener("change", searchExamlist);
         document.getElementById("selectAll").addEventListener("change", selectAll);
         document.getElementById("sendEmail").addEventListener("click", sendInvitation);
+        document.getElementById("eventStatus").addEventListener("change", changeStatus);
         // document.getElementById("sendReminder").addEventListener("click", sendReminder);  TODO Version 1.2
         document.getElementById("createPDF").addEventListener("click", createAllPDF);
         document.getElementById("student").addEventListener("click", changeSort);
@@ -29,10 +30,16 @@ function searchExamlist() {
     const select = document.getElementById("dateSearch");
     let filter = "&date=" + select.value;
     const option = select.options[select.selectedIndex];
-    let locked = option.getAttribute("data-locked") === "true";
-    document.getElementById("email").innerText = option.getAttribute("data-supervisor")
-    document.getElementById("sendEmail").disabled = locked;
+    const locked = option.getAttribute("data-locked") === "true";
+    const eventStatus = option.getAttribute("data-eventStatus");
+
+    document.getElementById("email").innerText = option.getAttribute("data-supervisor");
+    document.getElementById("sendEmail").disabled = true;
+    if (eventStatus === "closed") {
+        document.getElementById("sendEmail").disabled = locked;
+    }
     document.getElementById("createPDF").disabled = locked;
+    show_eventStatus(eventStatus);
     readExamlist(filter).then(data => {
         showExamlist(data, locked);
     }).catch(result => {
@@ -40,6 +47,47 @@ function searchExamlist() {
     });
 }
 
+function show_eventStatus(eventStatus) {
+    /**
+     * Shows the event status
+     */
+
+    const statusSwitch = document.getElementById("eventStatus");
+    document.getElementById("eventStatusLabel").innerText = eventStatus;
+    if (eventStatus === "closed") {
+        statusSwitch.checked = false;
+        statusSwitch.disabled = false;
+    } else if (eventStatus === "finished") {
+        statusSwitch.checked = false;
+        statusSwitch.disabled = true;
+    } else if (eventStatus === "open") {
+        statusSwitch.checked = true;
+        statusSwitch.disabled = false;
+    } else {
+        statusSwitch.checked = true;
+        statusSwitch.disabled = false;
+    }
+
+}
+
+function changeStatus() {
+    /**
+     * Changes the event status
+     */
+    showMessage("info", "wird gespeichert", 2);
+    let data = new URLSearchParams();
+    const select = document.getElementById("dateSearch");
+    data.set("event_uuid", select.value);
+    data.set("status", document.getElementById("eventStatus").checked ? "open" : "closed");
+    saveEvent(data).then(() => {
+        showMessage("clear", "");
+    }).catch(reason => {
+        console.log(reason);
+        if (reason === "404") {
+            showMessage("danger", "Beim Speichern ist ein Fehler aufgetreten. Bitte probiere es später nocheinmal.");
+        }
+    });
+}
 function changeSort(event) {
     /**
      * Changes the sort order
@@ -49,12 +97,12 @@ function changeSort(event) {
     let fieldId = event.target.id;
     if (fieldId === "status") {
         urlParams.set("sort", "status");
-        document.getElementById('statusArrow').innerHTML = '&uarr;';
+        document.getElementById('statusArrow').innerHTML = '&blacktriangle;&nbsp;';
         document.getElementById('studentArrow').innerText = '';
     } else {
         urlParams.set("sort", "name");
         document.getElementById('statusArrow').innerText = '';
-        document.getElementById('studentArrow').innerHTML = '&uarr;';
+        document.getElementById('studentArrow').innerHTML = '&blacktriangle;&nbsp;';
     }
     let newURL = location.protocol + '//' + location.host + location.pathname + "?" + urlParams.toString();
     history.pushState(null, null, newURL);
@@ -159,13 +207,12 @@ function changeExam(event) {
     data.set(fieldname, event.target.value);
     saveExam(data)
         .then(showMessage("clear", ""))
-.
-    catch(reason => {
-        console.log(reason);
-        if (reason === "404") {
-            showMessage("danger", "Beim Speichern ist ein Fehler aufgetreten. Bitte probiere es später nocheinmal.");
-        }
-    });
+        .catch(reason => {
+            console.log(reason);
+            if (reason === "404") {
+                showMessage("danger", "Beim Speichern ist ein Fehler aufgetreten. Bitte probiere es später nocheinmal.");
+            }
+        });
 }
 
 /**
@@ -190,8 +237,7 @@ function addOptions(field) {
  * @returns compare result
  */
 function sortExams(property) {
-    return function(examA, examB)
-    {
+    return function (examA, examB) {
         if (property === "name") {
             const compareFirst = examA.student.firstname.localeCompare(examB.student.firstname);
             if (compareFirst !== 0) return compareFirst;
