@@ -14,6 +14,7 @@ class EventService(Resource):
 
     def __init__(self):
         self.parser = reqparse.RequestParser()
+        self.parser.add_argument('event_uuid', location='form', default=None, help='uu')
         self.parser.add_argument('status', location='form', default=None, help='status')
 
     @token_required
@@ -47,6 +48,6 @@ class EventService(Resource):
         args = self.parser.parse_args()
         if args.status is not None:
             event_dao = EventDAO()
-            if event_dao.update_event(event_uuid, args.status):
+            if event_dao.update_event(args.event_uuid, args.status):
                 return True
         return False

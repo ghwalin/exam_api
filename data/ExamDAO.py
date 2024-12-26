@@ -87,9 +87,9 @@ class ExamDAO:
             return self._examdict[uuid]
         return None
 
-    def save_exam(self, exam: Exam) -> None:
+    def update_exam(self, exam: Exam) -> None:
         """
-        saves a new or changed exam
+        updates a new or changed exam
         :param exam:
         :return:
         """
@@ -122,6 +122,12 @@ class ExamDAO:
         if exam.status is not None:
             old.status = exam.status
 
+        self.save_exams()
+
+    def save_exams(self) -> None:
+        """
+        saves all exams to the json file
+        """
         exams_json = '['
         for key in self._examdict:
             data = self._examdict[key].to_json(False)
@@ -131,7 +137,6 @@ class ExamDAO:
         file = open(current_app.config['DATAPATH'] + 'exams.json', 'w', encoding='UTF-8')
         file.write(exams_json)
         file.close()
-
     def load_exams(self) -> None:
         """
         loads all exams into _examlist
@@ -159,7 +164,8 @@ class ExamDAO:
                 room=item['room'],
                 remarks=item['remarks'],
                 tools=item['tools'],
-                status=item['status']
+                status=item['status'],
+                invited=item['invited']
             )
             self._examdict[key] = exam
 

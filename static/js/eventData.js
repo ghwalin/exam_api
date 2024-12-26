@@ -38,7 +38,7 @@ function setEventList(data, elementIds) {
             let option = document.createElement("option");
             option.value = examEvent.event_uuid;
             if (examEvent.diff !== 0) {
-                option.text = eventList[examEvent.event_uuid].datetime;
+                option.text = eventList[examEvent.event_uuid].timestamp;
                 option.setAttribute("data-supervisor", examEvent.supervisors[0]);
                 option.setAttribute("data-eventStatus", examEvent.status);
                 examEvent.supervisors.forEach(supervisor => {
@@ -61,6 +61,11 @@ function setEventList(data, elementIds) {
                 targets[key].appendChild(copy);
             }
         });
+        const event_uuid = readStorage("event_uuid");
+        if (event_uuid !== null) {
+            document.getElementById("dateSearch").value = event_uuid;
+            searchExamlist();
+        }
         showMessage("clear");
     })();
 }
@@ -74,7 +79,7 @@ function sortEventList(eventArray) {
     let future = [];
     let past = [];
     eventArray.forEach(examEvent => {
-        let diff = new Date(examEvent.datetime) - new Date();
+        let diff = new Date(examEvent.timestamp) - new Date();
         examEvent.diff = diff;
         if (diff < 0) past.push(examEvent);
         else future.push(examEvent);
@@ -82,9 +87,9 @@ function sortEventList(eventArray) {
         const key = examEvent.event_uuid;
         eventList[key] = examEvent;
         if (examEvent.status === 'unassigned') {
-            eventList[key].datetime = 'unbestimmt';
+            eventList[key].timestamp = 'unbestimmt';
         } else {
-            eventList[key].datetime = new Date(examEvent.datetime).toLocaleDateString();
+            eventList[key].timestamp = new Date(examEvent.timestamp).toLocaleDateString();
         }
     });
 
@@ -98,7 +103,7 @@ function sortEventList(eventArray) {
     let sortedArray = future;
     const today = {
         "event_uuid": "",
-        "datetime": "--------",
+        "timestamp": "--------",
         "diff": 0,
         "supervisors": [],
         "rooms": []
@@ -106,4 +111,15 @@ function sortEventList(eventArray) {
     sortedArray.push(today);
     sortedArray = sortedArray.concat(past);
     return sortedArray;
+}
+
+function saveEvent(data) {
+    /**
+     * Saves changes to an event
+     * @type {string}
+     */
+    let httpMethod = "PUT";
+
+    const result = sendRequest(API_URL + "/event", httpMethod, data, "text");
+    return result;
 }

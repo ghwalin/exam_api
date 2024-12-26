@@ -160,7 +160,7 @@ function showExamlist(data) {
                     let row = rows.insertRow(-1);
                     addTextCell(row, exam.teacher.firstname + " " + exam.teacher.lastname + "<br />" + exam.teacher.email);
                     addTextCell(row, exam.student.firstname + " " + exam.student.lastname + "<br />" + exam.student.email);
-                    addTextCell(row, eventList[exam.event_uuid].datetime.substring(0, 10));
+                    addTextCell(row, eventList[exam.event_uuid].timestamp.substring(0, 10));
                     addTextCell(row, statusData[exam.status].icon + statusData[exam.status].text);
                     addTextCell(row, exam.module + " / " + exam.exam_num);
                     addTextCell(row, exam.duration);

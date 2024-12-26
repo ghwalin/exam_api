@@ -121,7 +121,7 @@ class ExamService(Resource):
             event_uuid=args.event_uuid,
             status=args.status
         )
-        exam_dao.save_exam(exam)
+        exam_dao.update_exam(exam)
         return True
 
 

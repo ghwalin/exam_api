@@ -49,7 +49,10 @@ class EventDAO:
         listing = ''
         for (key, event) in self._eventdict.items():
             if event.status == 'open':
-                listing += '  *' + strftime('%d.%m.%Y %H:%M', event.timestamp) + '\n'
+                try:
+                    listing += f'  * {event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}\n'
+                except TypeError:
+                    pass
 
         return listing
 
@@ -71,7 +74,7 @@ class EventDAO:
         """
         if event_uuid in self._eventdict:
             event = self._eventdict[event_uuid]
-            event['status'] = status
+            event.status = status
             self.save_events()
             return True
         return False
@@ -82,8 +85,13 @@ class EventDAO:
         Saves the events
         """
 
-        with open(current_app.config['DATAPATH'] + 'events.json', 'w', encoding='UTF-8') as outfile:
-            json.dump(self._eventdict, outfile)
+        event_json = '['
+        for (key, event) in self._eventdict.items():
+            event_json += event.to_json() + ','
+        event_json = event_json[:-1] + ']'
+        file = open(current_app.config['DATAPATH'] + 'events.json', 'w', encoding='UTF-8')
+        file.write(event_json)
+        file.close()
 
     def load_events(self) -> None:
 

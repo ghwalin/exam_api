@@ -27,21 +27,23 @@ class Exam(dict):
     remarks: str
     tools: str
     status: str
+    invited: bool = False
 
     def to_json(self, response=True) -> str:
         try:
             data = {
-                 'exam_uuid': self.exam_uuid,
-                 'cohort': self.cohort,
-                 'module':self.module,
-                 'exam_num':self.exam_num,
-                 'missed':self.missed.strftime("%Y-%m-%d"),
-                 'duration': str(self.duration),
-                 'room':self.room,
-                 'remarks':self.remarks,
-                 'tools':self.tools,
-                 'event_uuid':self.event_uuid,
-                 'status':self.status,
+                'exam_uuid': self.exam_uuid,
+                'cohort': self.cohort,
+                'module': self.module,
+                'exam_num': self.exam_num,
+                'missed': self.missed.strftime("%Y-%m-%d"),
+                'duration': str(self.duration),
+                'room': self.room,
+                'remarks': self.remarks,
+                'tools': self.tools,
+                'event_uuid': self.event_uuid,
+                'status': self.status,
+                'invited': self.invited
             }
 
             if response:

@@ -56,6 +56,7 @@ class EmailService(Resource):
         """
         args = self.parser.parse_args()
         exam_dao = ExamDAO()
+
         for exam_uuid in args['exam_uuid']:
             uuid = ''
             if isinstance(exam_uuid, list):
@@ -65,7 +66,9 @@ class EmailService(Resource):
                 uuid = exam_uuid
             exam = exam_dao.read_exam(uuid)
             if exam is not None:
+                exam.invited = True
                 create_email(exam, 'invitation')
+        exam_dao.save_exams()
         return make_response('email sent', 200)
 
 
@@ -134,7 +137,8 @@ def send_email(sender, recipient, carboncopy, subject, content):
     :param content: email text
     :return: None
     """
-
+    if current_app.config['MAIL_SERVER'] == 'localhost':
+        return
     mail = Mail(current_app)
     msg = Message(
         subject=subject,

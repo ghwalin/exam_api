@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function searchExamlist() {
     showMessage("info", "wird geladen", 2);
     const select = document.getElementById("dateSearch");
-    let filter = "&date=" + select.value;
+    const filter = "&date=" + select.value;
+    writeStorage({"event_uuid": select.value});
     const option = select.options[select.selectedIndex];
     const locked = option.getAttribute("data-locked") === "true";
     const eventStatus = option.getAttribute("data-eventStatus");
@@ -53,17 +54,22 @@ function show_eventStatus(eventStatus) {
      */
 
     const statusSwitch = document.getElementById("eventStatus");
-    document.getElementById("eventStatusLabel").innerText = eventStatus;
+    const statusLabel = document.getElementById("eventStatusLabel");
+
     if (eventStatus === "closed") {
+        statusLabel.innerText = "geschlossen";
         statusSwitch.checked = false;
         statusSwitch.disabled = false;
     } else if (eventStatus === "finished") {
+        statusLabel.innerText = "beendet";
         statusSwitch.checked = false;
         statusSwitch.disabled = true;
     } else if (eventStatus === "open") {
+        statusLabel.innerText = "offen";
         statusSwitch.checked = true;
         statusSwitch.disabled = false;
     } else {
+        statusLabel.innerText = "offen";
         statusSwitch.checked = true;
         statusSwitch.disabled = false;
     }
@@ -79,7 +85,9 @@ function changeStatus() {
     const select = document.getElementById("dateSearch");
     data.set("event_uuid", select.value);
     data.set("status", document.getElementById("eventStatus").checked ? "open" : "closed");
-    saveEvent(data).then(() => {
+    saveEvent(
+        data
+    ).then(() => {
         showMessage("clear", "");
     }).catch(reason => {
         console.log(reason);
@@ -148,13 +156,14 @@ function showExamlist(data, locked) {
                         field.setAttribute("data-examUUID", exam.exam_uuid);
                         cell.appendChild(field);
 
-                        cell = row.insertCell(-1);
+                        /* cell = row.insertCell(-1);
                         if (exam.student.email !== prevEmail) {
                             prevEmail = exam.student.email;
                             count++;
                             cell.innerText = count.toString();
                             distinctStudent[exam.student.email] = 1;
-                        }
+                        } */
+                        distinctStudent[exam.student.email] = 1;
                         cell = row.insertCell(-1);
                         let dropdown = document.createElement("select");
                         dropdown.setAttribute("data-examUUID", exam.exam_uuid);
@@ -164,7 +173,17 @@ function showExamlist(data, locked) {
                         dropdown.value = exam.status;
                         dropdown.name = "status";
                         cell.appendChild(dropdown);
+
                         cell = row.insertCell(-1);
+                        field = document.createElement("i");
+                        if (exam.invited) {
+                            field.classList.add("bi", "bi-check-lg");
+                        } else {
+                            field.classList.add("bi", "bi-x-lg");
+                        }
+                        cell.appendChild(field);
+                        cell = row.insertCell(-1);
+
                         field = document.createElement("input");
                         field.value = exam.room;
                         field.name = "room";

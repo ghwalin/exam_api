@@ -19,7 +19,7 @@ class Event:
 
     def to_json(self) -> str:
         jstring = '{"event_uuid":"' + self.event_uuid + '",' + \
-                  '"datetime": "' + self.timestamp + '",' + \
+                  '"timestamp": "' + self.timestamp + '",' + \
                   '"supervisors":' + json.dumps(self.supervisors) + ',' + \
                   '"rooms":' + json.dumps(self.rooms) + ',' + \
                   '"status":' + json.dumps(self.status) + '}'
@@ -35,11 +35,11 @@ class Event:
 
     @property
     def timestamp(self) -> str:
-        return self._datetime
+        return self._timestamp
 
     @timestamp.setter
     def timestamp(self, value) -> None:
-        self._datetime = value
+        self._timestamp = value
 
     @property
     def rooms(self) -> List[str]:

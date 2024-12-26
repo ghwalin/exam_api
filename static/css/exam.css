@@ -73,3 +73,8 @@ fieldset {
 .clickable {
     text-decoration: underline;
 }
+
+.bi-check-lg::before {
+    color: white;
+    background-color: var(--bs-green);
+}
