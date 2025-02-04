@@ -1,3 +1,5 @@
+import datetime
+
 from flask import make_response, current_app
 from flask_mail import Mail, Message
 from flask_restful import Resource, reqparse
@@ -86,7 +88,7 @@ def create_email(exam, status):
     filename = current_app.config['TEMPLATEPATH']
 
     cc = [exam.teacher.email]
-    if status > '20':
+    if status == 'invitation':
         filename += 'invitation.txt'
         sender = chief_supervisor.email
         if chief_supervisor.email != exam.teacher.email:
@@ -95,16 +97,20 @@ def create_email(exam, status):
     else:
         sender = exam.teacher.email
         subject = 'Verpasste Prüfung'
-        if status == '10' and event.status == 'unassigned':
-            filename += 'missed_open.txt'
+        if status == '10':
+            if event.status == 'unassigned':
+                filename += 'missed_open.txt'
+            else:
+                filename += 'missed.txt'
         elif status == '20' and event.status == 'unassigned':
             filename += 'missed_open.txt'
         else:
             filename += 'missed2.txt'
 
-
     file = open(filename, encoding='UTF-8')
     text = file.read()
+    event_start = datetime.datetime.strptime(event.timestamp, '%Y-%m-%d %H:%M:%S')
+    event_door = event_start - datetime.timedelta(minutes=15)
     data = {'student.firstname': exam.student.firstname,
             'student.lastname': exam.student.lastname,
             'teacher.firstname': exam.teacher.firstname,
@@ -115,8 +121,9 @@ def create_email(exam, status):
             'chief_supervisor.email': chief_supervisor.email,
             'missed': exam.missed,
             'module': exam.module,
-            'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
-            'event.time': f'{event.timestamp[14:19]}',
+            'event.date': event_start.strftime('%d.%m.%Y'),
+            'event.time': event_start.strftime('%H:%M'),
+            'event.door': event_door.strftime('%H:%M'),
             'eventlist': event_dao.open_events(),
             'room': exam.room,
             'tools': exam.tools
@@ -149,4 +156,3 @@ def send_email(sender, recipient, carboncopy, subject, content):
     )
     msg.body = content
     mail.send(msg)
-

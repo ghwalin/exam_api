@@ -6,7 +6,7 @@ Solange Sie diese Leistungsbeurteilung nicht absolviert haben, erhalten Sie kein
 
 Das weitere Vorgehen:
 1. Sie müssen innerhalb von 2 Wochen ein Arztzeugnis vorlegen, andernfalls wird die Note 1.0 erteilt.
-  Sofern Sie das Arztzeugnis fristgerecht vorlegen, können Sie die Leistungsbeurteilung am nachholen.
+  Sofern Sie das Arztzeugnis fristgerecht vorlegen, können Sie die Leistungsbeurteilung nachholen.
 
 2. Vereinbaren Sie mit Ihrer Fachlehrperson {{teacher.firstname}} {{teacher.lastname}} einen Termin für die Nachprüfung.
 

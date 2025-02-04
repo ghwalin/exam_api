@@ -55,23 +55,28 @@ function show_eventStatus(eventStatus) {
 
     const statusSwitch = document.getElementById("eventStatus");
     const statusLabel = document.getElementById("eventStatusLabel");
+    const sendEmail = document.getElementById("sendEmail");
 
     if (eventStatus === "closed") {
         statusLabel.innerText = "geschlossen";
         statusSwitch.checked = false;
         statusSwitch.disabled = false;
+        sendEmail.disabled = false;
     } else if (eventStatus === "finished") {
         statusLabel.innerText = "beendet";
         statusSwitch.checked = false;
         statusSwitch.disabled = true;
+        sendEmail.disabled = true;
     } else if (eventStatus === "open") {
         statusLabel.innerText = "offen";
         statusSwitch.checked = true;
         statusSwitch.disabled = false;
+        sendEmail.disabled = true;
     } else {
         statusLabel.innerText = "offen";
         statusSwitch.checked = true;
         statusSwitch.disabled = false;
+        sendEmail.disabled = true;
     }
 
 }
@@ -88,6 +93,7 @@ function changeStatus() {
     saveEvent(
         data
     ).then(() => {
+        show_eventStatus(data.get("status"));
         showMessage("clear", "");
     }).catch(reason => {
         console.log(reason);

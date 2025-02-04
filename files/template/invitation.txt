@@ -3,9 +3,9 @@ Guten Tag {{student.firstname}} {{student.lastname}}
 Sie haben am {{missed}} im Modul {{module}} während der Leistungsbeurteilung bei {{teacher.firstname}} {{teacher.lastname}} gefehlt und werden hiermit zu einer Nachprüfung aufgeboten.
 
 - Datum: {{event.date}}
-- Zeit:
-  * Beginn {{event.time}} (danach kein Zutritt mehr!)
-  * Türöffnung 15 Minuten vorher
+- Zeiten:
+  * Türöffnung:    {{event.door}} Uhr
+  * Prüfungsstart: {{event.time}} Uhr (danach kein Zutritt mehr!)
 - Ort: Horgen See, Zimmer {{room}}
 - Dauer: {{duration}} Minuten
 - Hilfsmittel: {{tools}}
@@ -20,4 +20,4 @@ Freundliche Grüsse
 Bildungszentrum Zürichsee
 {{chief_supervisor.firstname}} {{chief_supervisor.lastname}}
 {{chief_supervisor.email}}
-https://it.bzz.ch/exam
+https://exam.bzz.ch
