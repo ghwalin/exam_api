@@ -30,6 +30,11 @@ class Exam(dict):
     invited: bool = False
 
     def to_json(self, response=True) -> str:
+        '''
+        converts the exam to a json string
+        :param response: if True, the teacher and student are converted to dicts, otherwise email addresses are used
+        :return: json string
+        '''
         try:
             data = {
                 'exam_uuid': self.exam_uuid,
@@ -61,6 +66,23 @@ class Exam(dict):
             logging.exception("An exception was thrown!")
             logging.exception('exam_uuid: ' + self.exam_uuid)
             raise ValueError
+
+    @property
+    def status_text(self) -> str:
+        """
+        returns the status text of the exam
+        :return: status text
+        """
+        status_map = {
+            '10': 'pendent',
+            '20': 'offen',
+            '30': 'abgegeben',
+            '35': 'elektronisch',
+            '40': 'erhalten',
+            '50': 'absolviert',
+            '80': 'pnab'
+        }
+        return status_map.get(self.status, 'unbekannt')
 
     @property
     def exam_uuid(self) -> str:

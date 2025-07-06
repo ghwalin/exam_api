@@ -124,6 +124,20 @@ class PrintService(Resource):
                     style = 'B'
                 pdf.set_font(style=style, family='helvetica')
                 for line in content.split('\n'):
+                    words = line.split()
+                    length = 0
+                    text = ''
+                    for word in words:
+                        if length + len(word) >= 40:
+                            pdf.text(xcoord, ycoord, text)
+                            ycoord += 6
+                            line = line[length + 1:]
+                            length = 0
+                            text = ''
+                        else:
+                            length += len(word) + 1
+                            text += word + ' '
+
                     pdf.text(xcoord, ycoord, line)
                     ycoord += 6
             elif item['type'] == 'line':
@@ -156,6 +170,7 @@ class PrintService(Resource):
                 'missed': exam.missed,
                 'module': exam.module,
                 'exam_num': exam.exam_num,
+                'exam_status': exam.status_text,
                 'duration': str(exam.duration),
                 'event.date': f'{event.timestamp[8:10]}.{event.timestamp[5:7]}.{event.timestamp[0:4]}',
                 'event.time': f'{event.timestamp[14:19]}',

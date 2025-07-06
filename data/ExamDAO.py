@@ -98,6 +98,8 @@ class ExamDAO:
         old = self._examdict[exam.exam_uuid]
 
         if exam.event_uuid is not None:
+            if old.event_uuid is not None and old.event_uuid != exam.event_uuid:
+                old.invited = False  # if the event changes, the exam is not invited anymore
             old.event_uuid = exam.event_uuid
         if exam.student is not None:
             old.student = exam.student
