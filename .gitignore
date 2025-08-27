@@ -3,3 +3,7 @@
 /venv/
 /static/js/config.js
 /static/js/news.js
+__pycache__/
+*.pyc
+*.pyo
+output/

@@ -6,7 +6,6 @@ Solange Sie diese Leistungsbeurteilung nicht absolviert haben, erhalten Sie kein
 
 Das weitere Vorgehen:
 - Sie müssen innerhalb von 2 Wochen ein Arztzeugnis vorlegen, andernfalls wird die Note 1.0 erteilt.
-- Innerhalb von 4 Wochen müssen Sie Ihre Absenz unter https://absenzen.bzz.ch quittieren.
 
 Sofern Sie das Arztzeugnis fristgerecht vorlegen, können Sie die Leistungsbeurteilung am {{event.date}} nachholen.
 Weitere Details zur Nachprüfung finden Sie unter https://exam.bzz.ch.
