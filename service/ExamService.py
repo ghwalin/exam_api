@@ -92,9 +92,14 @@ class ExamService(Resource):
         :return:
         """
         exam_dao = ExamDAO()
+        invited = False
         if new is False:
-            if exam_dao.read_exam(args.exam_uuid) is None:
+            oldExam = exam_dao.read_exam(args.exam_uuid)
+            if oldExam is None:
                 return False
+            else:
+                if oldExam.event_uuid != args.event_uuid:
+                    invited = oldExam.invited
 
         person_dao = PersonDAO()
         teacher = None
@@ -119,7 +124,8 @@ class ExamService(Resource):
             remarks=args.remarks,
             tools=args.tools,
             event_uuid=args.event_uuid,
-            status=args.status
+            status=args.status,
+            invited=invited
         )
         exam_dao.update_exam(exam)
         return True

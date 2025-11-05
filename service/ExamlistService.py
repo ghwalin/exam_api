@@ -36,8 +36,6 @@ class ExamlistService(Resource):
         if g.user.role != 'teacher':
             args['student'] = g.user.email
             args['teacher'] = ''
-            args['date'] = ''
-            args['status'] = ''
 
         exam_dao = ExamDAO()
         examlist = exam_dao.filtered_list(args['student'], args['teacher'], args['date'], args['status'])
