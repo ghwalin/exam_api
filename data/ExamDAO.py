@@ -17,21 +17,20 @@ def condition(exam: Exam, student: str, teacher: str, date: str, status: str) ->
     :param status
     :return: matches filter True/False
     """
+    none_values = [None, '', 'all']
     try:
-        if student is not None and student != "":
+        if student not in none_values:
             if student.lower() not in exam.student.fullname.lower() and \
                     student.lower() not in exam.student.email.lower():
                 return False
-        if teacher is not None and teacher != "":
+        if teacher not in none_values:
             if teacher.lower() not in exam.teacher.fullname.lower() and \
                     teacher.lower() not in exam.teacher.email.lower():
                 return False
-        if date is not None and \
-                date != '' and \
-                date != 'all' and \
+        if date not in none_values and \
                 date != exam.event_uuid:
             return False
-        if status is None or status == '':
+        if status not in none_values:
             status = 'all'
         if exam.status in ['10', '20', '30', '35', '40'] and status not in ['open', 'all']:
             return False
