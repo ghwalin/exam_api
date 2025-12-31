@@ -27,7 +27,8 @@ def condition(exam: Exam, student: str, teacher: str, date: str, status: str) ->
                     teacher.lower() not in exam.teacher.email.lower():
                 return False
         if date is not None and \
-                date != "all" and \
+                date != '' and \
+                date != 'all' and \
                 date != exam.event_uuid:
             return False
         if status is None or status == '':
