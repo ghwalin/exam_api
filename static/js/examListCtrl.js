@@ -149,6 +149,12 @@ function showExamlist(data) {
                 await new Promise(resolve => setTimeout(resolve, 100));
         }
 
+        if (role === "teacher") {
+            document.getElementById("studentSearch").readOnly = false;
+        } else {
+            document.getElementById("studentSearch").readOnly = true;
+        }
+
         let rows = document.getElementById("examlist")
             .getElementsByTagName("tbody")[0];
         rows.innerHTML = "";
