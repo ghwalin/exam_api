@@ -10,6 +10,6 @@ Bitte deponiere die Unterlagen spätestens 2 Tage vor dem Nachprüfungstermin im
 Freundliche Grüsse
 
 Bildungszentrum Zürichsee
-{{chief_supervisor.firstname}} {{chief_supervisor.lastname}}
-{{chief_supervisor.email}}
+{{supervisors}}
+{{supervisors.emails}}
 https://exam.it.bzz.ch

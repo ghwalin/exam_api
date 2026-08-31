@@ -84,15 +84,17 @@ def create_email(exam, status):
     event_dao = EventDAO()
     event = event_dao.read_event(exam.event_uuid)
     person_dao = PersonDAO()
-    chief_supervisor = person_dao.read_person(event.supervisors[0])
+    supervisors = [person_dao.read_person(email) for email in event.supervisors]
+    chief_supervisor = supervisors[0]
     filename = current_app.config['TEMPLATEPATH']
 
     cc = [exam.teacher.email]
     if status == 'invitation':
         filename += 'invitation.txt'
         sender = chief_supervisor.email
-        if chief_supervisor.email != exam.teacher.email:
-            cc.append(chief_supervisor.email)
+        for supervisor in supervisors:
+            if supervisor.email not in cc:
+                cc.append(supervisor.email)
         subject = 'Aufgebot zur Nachprüfung'
     else:
         sender = exam.teacher.email
@@ -116,6 +118,9 @@ def create_email(exam, status):
             'teacher.firstname': exam.teacher.firstname,
             'teacher.lastname': exam.teacher.lastname,
             'teacher.email': exam.teacher.email,
+            'supervisors': ', '.join(person.fullname for person in supervisors),
+            'supervisors.emails': ', '.join(person.email for person in supervisors),
+            'supervisor': ', '.join(person.email for person in supervisors),
             'chief_supervisor.firstname': chief_supervisor.firstname,
             'chief_supervisor.lastname': chief_supervisor.lastname,
             'chief_supervisor.email': chief_supervisor.email,
@@ -126,6 +131,7 @@ def create_email(exam, status):
             'event.door': event_door.strftime('%H:%M'),
             'eventlist': event_dao.open_events(),
             'room': exam.room,
+            'duration': str(exam.duration),
             'tools': exam.tools
             }
     text = replace_text(data, text)

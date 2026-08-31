@@ -12,12 +12,12 @@ Sie haben am {{missed}} im Modul {{module}} während der Leistungsbeurteilung be
 
 Hinweise:
 - Falls Sie mehr als eine Prüfung schreiben müssen, können Sie zwischen den Prüfungen jeweils 5-10 Minuten Pausen machen. Nehmen Sie allenfalls einen Znüni und etwas zu trinken mit.
-- Falls Sie am Prüfungstag unerwartet verhindert sein sollten, melden Sie Ihr Fernbleiben über Teams oder E-Mail an {{supervisor}}.
+- Falls Sie am Prüfungstag unerwartet verhindert sein sollten, melden Sie Ihr Fernbleiben über Teams oder E-Mail an {{supervisors.emails}}.
 - Absenzen müssen mit einem Arztzeugnis oder einer gültigen Dispensation belegt werden.
 
 Freundliche Grüsse
 
 Bildungszentrum Zürichsee
-{{chief_supervisor.firstname}} {{chief_supervisor.lastname}}
-{{chief_supervisor.email}}
+{{supervisors}}
+{{supervisors.emails}}
 https://exam.bzz.ch
