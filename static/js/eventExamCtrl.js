@@ -39,7 +39,8 @@ function searchExamlist() {
     if (eventStatus === "closed") {
         document.getElementById("sendEmail").disabled = locked;
     }
-    document.getElementById("createPDF").disabled = locked;
+    // bis die neue Liste steht, ist nichts ausgewaehlt, was gedruckt werden koennte
+    document.getElementById("createPDF").disabled = true;
     show_eventStatus(eventStatus);
     readExamlist(filter).then(data => {
         showExamlist(data, locked);
@@ -160,6 +161,7 @@ function showExamlist(data, locked) {
                         field.name = "selected";
                         field.classList.add("form-check-input");
                         field.setAttribute("data-examUUID", exam.exam_uuid);
+                        field.addEventListener("change", showPDFButton);
                         cell.appendChild(field);
 
                         /* cell = row.insertCell(-1);
@@ -216,6 +218,7 @@ function showExamlist(data, locked) {
         } else {
             showMessage("warning", "Keine Prüfungen zu diesem Datum gefunden");
         }
+        showPDFButton();
     })();
 }
 
@@ -335,36 +338,67 @@ function sendReminder() {
  * creates a PDF for all selected exams
  */
 function createAllPDF() {
+    const examUUIDs = selectedExams();
+    if (examUUIDs.length === 0) {
+        showMessage("warning", "keine Prüfung ausgewählt");
+        return;
+    }
+
     showMessage("info", "PDF wird erstellt ...", 2);
     let data = new URLSearchParams();
-    const boxes = document.querySelectorAll("input:checked");
-    if (boxes.length > 0) {
-        for (const box of boxes) {
-            let examUUID = box.getAttribute("data-examuuid");
-            if (examUUID != null)
-                data.append("exam_uuid", examUUID);
-        }
-        fetch(API_URL + "/print", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": "Bearer " + readStorage("access")
-            }, body: data
-        }).then(function (response) {
-            if (!response.ok) {
-                console.log(response);
-            } else return response;
-        }).then(response => response.text()
-        ).then(pdf_name => {
-            let url = "./output/" + pdf_name;
-            window.open(url, "_blank");
-            showMessage("clear", "")
-        }).catch(function (error) {
-            console.log(error);
-        });
-    } else {
-        showMessage("warning", "keine Prüfung ausgewählt");
+    for (const examUUID of examUUIDs) {
+        data.append("exam_uuid", examUUID);
     }
+    fetch(API_URL + "/print", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Bearer " + readStorage("access")
+        }, body: data
+    }).then(response => response.text().then(pdf_name => {
+        if (response.ok) {
+            window.open("./output/" + pdf_name, "_blank");
+            showMessage("clear", "");
+        } else {
+            console.log(response);
+            showMessage("danger", "Die Datenblätter konnten nicht erstellt werden");
+        }
+    })).catch(function (error) {
+        console.log(error);
+        showMessage("danger", "Die Datenblätter konnten nicht erstellt werden");
+    });
+}
+
+/**
+ * the exams whose checkbox is ticked
+ * the status switch of the event is a checkbox too, so a box only counts
+ * as a selection when it carries a data-examuuid
+ * @returns {string[]} the uuids of the selected exams
+ */
+function selectedExams() {
+    return [...document.querySelectorAll("input:checked")]
+        .filter(box => box.hasAttribute("data-examuuid"))
+        .map(box => box.getAttribute("data-examuuid"));
+}
+
+/**
+ * is the selected event locked for the current user
+ * @returns {boolean} true if the exams may not be changed
+ */
+function eventLocked() {
+    const select = document.getElementById("dateSearch");
+    const option = select.options[select.selectedIndex];
+    return option !== undefined && option.getAttribute("data-locked") === "true";
+}
+
+/**
+ * the datasheets need a selection, so the button stays disabled until
+ * at least one exam is ticked
+ * a locked event keeps it disabled either way, searchExamlist() sets that
+ * before the list is even loaded
+ */
+function showPDFButton() {
+    document.getElementById("createPDF").disabled = eventLocked() || selectedExams().length === 0;
 }
 
 /**
@@ -376,4 +410,5 @@ function selectAll() {
     for (const box of checkboxes) {
         box.checked = isChecked;
     }
+    showPDFButton();
 }
