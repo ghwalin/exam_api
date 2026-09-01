@@ -422,7 +422,14 @@ function openSheet(uuid) {
     sendRequest(API_URL + "/print/" + uuid, "GET", null, "blob")
         .then((blob) => {
             const _url = window.URL.createObjectURL(blob);
-            window.open(_url, "_blank").focus();
+            const sheet = window.open(_url, "_blank");
+            if (sheet !== null) {
+                sheet.focus();
+            } else {
+                showMessage("warning", "Das Datenblatt wurde vom Popup-Blocker unterdrückt");
+            }
+            // erst freigeben, wenn der neue Tab den Blob geladen hat
+            window.setTimeout(() => window.URL.revokeObjectURL(_url), 60000);
         }).catch((err) => {
         console.log(err);
     });
