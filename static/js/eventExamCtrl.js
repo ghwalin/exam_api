@@ -160,6 +160,7 @@ function showExamlist(data, locked) {
                         field.name = "selected";
                         field.classList.add("form-check-input");
                         field.setAttribute("data-examUUID", exam.exam_uuid);
+                        field.addEventListener("change", showPDFButton);
                         cell.appendChild(field);
 
                         /* cell = row.insertCell(-1);
@@ -210,6 +211,7 @@ function showExamlist(data, locked) {
                     }
                 }
             });
+            showPDFButton();
             document.getElementById("distinct").innerText = Object.keys(distinctStudent).length
             lockForm("filterForm", locked);
             showMessage("clear", "");
@@ -335,11 +337,7 @@ function sendReminder() {
  * creates a PDF for all selected exams
  */
 function createAllPDF() {
-    /* the status switch of the event is a checkbox too, so only the boxes
-       that carry an exam count as a selection */
-    const examUUIDs = [...document.querySelectorAll("input:checked")]
-        .filter(box => box.hasAttribute("data-examuuid"))
-        .map(box => box.getAttribute("data-examuuid"));
+    const examUUIDs = selectedExams();
     if (examUUIDs.length === 0) {
         showMessage("warning", "keine Prüfung ausgewählt");
         return;
@@ -371,6 +369,26 @@ function createAllPDF() {
 }
 
 /**
+ * the exams whose checkbox is ticked
+ * the status switch of the event is a checkbox too, so only the boxes
+ * that carry an exam count as a selection
+ * @returns {string[]} the uuids of the selected exams
+ */
+function selectedExams() {
+    return [...document.querySelectorAll("input:checked")]
+        .filter(box => box.hasAttribute("data-examuuid"))
+        .map(box => box.getAttribute("data-examuuid"));
+}
+
+/**
+ * the datasheets need a selection, so the button stays disabled until
+ * at least one exam is ticked
+ */
+function showPDFButton() {
+    document.getElementById("createPDF").disabled = selectedExams().length === 0;
+}
+
+/**
  * select all / no exams
  */
 function selectAll() {
@@ -379,4 +397,5 @@ function selectAll() {
     for (const box of checkboxes) {
         box.checked = isChecked;
     }
+    showPDFButton();
 }
