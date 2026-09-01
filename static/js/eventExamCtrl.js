@@ -2,6 +2,9 @@
  * controller for eventExam.html
  */
 
+/* exam status values where the teacher has not deposited the documents yet */
+const MISSING_DOCUMENTS = ["10", "20"];
+
 /* initialize */
 readEventList(["dateSearch"]);
 
@@ -15,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("selectAll").addEventListener("change", selectAll);
         document.getElementById("sendEmail").addEventListener("click", sendInvitation);
         document.getElementById("eventStatus").addEventListener("change", changeStatus);
-        // document.getElementById("sendReminder").addEventListener("click", sendReminder);  TODO Version 1.2
+        document.getElementById("sendReminder").addEventListener("click", sendReminder);
         document.getElementById("createPDF").addEventListener("click", createAllPDF);
         document.getElementById("student").addEventListener("click", changeSort);
         document.getElementById("status").addEventListener("click", changeSort);
@@ -160,6 +163,7 @@ function showExamlist(data, locked) {
                         field.name = "selected";
                         field.classList.add("form-check-input");
                         field.setAttribute("data-examUUID", exam.exam_uuid);
+                        field.addEventListener("change", showReminderButton);
                         cell.appendChild(field);
 
                         /* cell = row.insertCell(-1);
@@ -216,6 +220,9 @@ function showExamlist(data, locked) {
         } else {
             showMessage("warning", "Keine Prüfungen zu diesem Datum gefunden");
         }
+        // auch nach einer leeren Trefferliste, sonst bleibt der Knopf aus der
+        // vorherigen Auswahl aktiv, obwohl keine Pruefung mehr dasteht
+        showReminderButton();
     })();
 }
 
@@ -283,18 +290,17 @@ function sortExams(property) {
 }
 
 /**
- * sends an email for all selected exams
+ * sends an email for a list of exams
  * @param service  the api service to call
+ * @param examUUIDs  the exams to send to, defaults to the selected ones
  */
-function sendAllEmail(service) {
+function sendAllEmail(service, examUUIDs = null) {
     showMessage("info", "Sende Emails ...", 2);
     let data = new URLSearchParams();
-    const boxes = document.querySelectorAll("input:checked");
-    if (boxes.length > 0) {
-        for (const box of boxes) {
-            if (box.hasAttribute("data-examuuid")) {
-                data.append("exam_uuid", box.getAttribute("data-examuuid"));
-            }
+    examUUIDs ??= selectedExams();
+    if (examUUIDs.length > 0) {
+        for (const examUUID of examUUIDs) {
+            data.append("exam_uuid", examUUID);
         }
         fetch(API_URL + service, {
             method: "PUT",
@@ -302,15 +308,17 @@ function sendAllEmail(service) {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": "Bearer " + readStorage("access")
             }, body: data
-        }).then(function (response) {
-            if (!response.ok) {
-                console.log(response);
-            } else return response;
-        }).then(response => response.text()
-        ).then(pdf_name => {
-            showMessage("clear", "")
-        }).catch(function (error) {
+        }).then(response => response.text().then(message => {
+            if (response.ok) {
+                showMessage("info", message, 0, 5);
+            } else {
+                console.log(response.status, message);
+                showMessage("danger", "Die Emails konnten nicht gesendet werden: "
+                    + errorDetail(response.status, message));
+            }
+        })).catch(function (error) {
             console.log(error);
+            showMessage("danger", "Die Emails konnten nicht gesendet werden");
         });
     } else {
         showMessage("warning", "keine Prüfung ausgewählt");
@@ -325,10 +333,37 @@ function sendInvitation() {
 }
 
 /**
- * sends a reminder email for all selected exams
+ * sends a reminder email to the teachers of the selected exams whose
+ * documents are still missing
  */
 function sendReminder() {
-    sendAllEmail("/email/reminder")
+    const selected = selectedExams();
+    const pending = selected.filter(examUUID => MISSING_DOCUMENTS.includes(examStatus(examUUID)));
+
+    if (pending.length === 0) {
+        showMessage("warning", "Bei den ausgewählten Prüfungen fehlen keine Unterlagen");
+        return;
+    }
+    const skipped = selected.length - pending.length;
+    const question = (pending.length === 1
+        ? "Bei 1 der ausgewählten Prüfungen fehlen die Unterlagen.\n\nErinnerung an die Lehrperson senden?"
+        : `Bei ${pending.length} der ausgewählten Prüfungen fehlen die Unterlagen.\n\nErinnerungen an die Lehrpersonen senden?`)
+        + (skipped === 0 ? "" : `\n\n${skipped} weitere Prüfung(en) bleiben unberührt, dort sind die Unterlagen da.`);
+    if (!window.confirm(question)) {
+        showMessage("clear", "");
+        return;
+    }
+    sendAllEmail("/email/reminder", pending);
+}
+
+/**
+ * the status of one exam, read from its dropdown in the list
+ * @param examUUID  the exam to look up
+ * @returns {string} the status value, empty if the exam is not in the list
+ */
+function examStatus(examUUID) {
+    const field = document.querySelector(`#examlist select[name='status'][data-examuuid="${examUUID}"]`);
+    return field === null ? "" : field.value;
 }
 
 /**
@@ -368,6 +403,44 @@ function createAllPDF() {
 }
 
 /**
+ * describes a failed request for the user
+ * only the message field of the api is used, an arbitrary body could carry
+ * markup and showMessage() writes it as innerHTML
+ * @param status  the http status
+ * @param body  the response body
+ * @returns {string} the message of the api with the status, or just the status
+ */
+function errorDetail(status, body) {
+    let detail = "";
+    try {
+        detail = JSON.parse(body).message ?? "";
+    } catch (error) {
+        /* not json, so there is no structured message to show */
+    }
+    return detail === "" ? `HTTP ${status}` : `${detail} (HTTP ${status})`;
+}
+
+/**
+ * the exams whose checkbox is ticked
+ * the status switch of the event is a checkbox too, so only the boxes
+ * that carry an exam count as a selection
+ * @returns {string[]} the uuids of the selected exams
+ */
+function selectedExams() {
+    return [...document.querySelectorAll("input:checked")]
+        .filter(box => box.hasAttribute("data-examuuid"))
+        .map(box => box.getAttribute("data-examuuid"));
+}
+
+/**
+ * the reminder needs a selection, so the button stays disabled until
+ * at least one exam is ticked
+ */
+function showReminderButton() {
+    document.getElementById("sendReminder").disabled = selectedExams().length === 0;
+}
+
+/**
  * select all / no exams
  */
 function selectAll() {
@@ -376,4 +449,5 @@ function selectAll() {
     for (const box of checkboxes) {
         box.checked = isChecked;
     }
+    showReminderButton();
 }
