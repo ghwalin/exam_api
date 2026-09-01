@@ -410,7 +410,9 @@ function sendEmail(event) {
  * @param event
  */
 function createPDF(event) {
-    openSheet(getExamUUID(event));
+    // der Klick trifft den span oder das i im Knopf, getExamUUID() faengt nur
+    // das i ab. currentTarget ist immer der Knopf, an dem der Listener haengt
+    openSheet(event.currentTarget.getAttribute("data-examuuid"));
 }
 
 /**
@@ -418,6 +420,10 @@ function createPDF(event) {
  * @param uuid the uuid of the exam
  */
 function openSheet(uuid) {
+    if (!uuid) {
+        showMessage("danger", "Das Datenblatt konnte nicht erstellt werden");
+        return;
+    }
     sendRequest(API_URL + "/print/" + uuid, "GET", null, "blob")
         .then((blob) => {
             // httpFetch() loest bei 404 mit der Zeichenkette "[]" auf, unabhaengig
