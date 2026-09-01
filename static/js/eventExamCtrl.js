@@ -214,13 +214,15 @@ function showExamlist(data, locked) {
                     }
                 }
             });
-            showReminderButton();
             document.getElementById("distinct").innerText = Object.keys(distinctStudent).length
             lockForm("filterForm", locked);
             showMessage("clear", "");
         } else {
             showMessage("warning", "Keine Prüfungen zu diesem Datum gefunden");
         }
+        // auch nach einer leeren Trefferliste, sonst bleibt der Knopf aus der
+        // vorherigen Auswahl aktiv, obwohl keine Pruefung mehr dasteht
+        showReminderButton();
     })();
 }
 
