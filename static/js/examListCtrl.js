@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("examadd").addEventListener("click", addExam);
     }
+    document.getElementById("status").addEventListener("change", toggleEnvironment);
 
     searchExamlist();
 });
@@ -111,6 +112,14 @@ function setSupervisor() {
     const field = document.getElementById("event_uuid");
     const selected = field.options[field.selectedIndex];
     document.getElementById("supervisor").value = selected.getAttribute("data-supervisor");
+}
+
+/**
+ * shows the exam environment only for electronic exams
+ */
+function toggleEnvironment() {
+    const isElectronic = document.getElementById("status").value === "35";
+    document.getElementById("environmentGroup").classList.toggle("d-none", !isElectronic);
 }
 
 /**
@@ -264,6 +273,7 @@ function addExam() {
     editForm.classList.remove("d-none");
     document.getElementById("list").classList.add("d-none");
     setSupervisor();
+    toggleEnvironment();
     document.getElementById("sendexam").checked = true;
 
 }
@@ -313,6 +323,7 @@ function selectExam(event, copy = false) {
             document.getElementById("sendexam").checked = false;
         }
         setSupervisor();
+        toggleEnvironment();
         document.getElementById("student.fullname").focus();
     }).catch(status => {
         showMessage("danger", "Ein Fehler ist aufgetreten");
@@ -340,7 +351,8 @@ function submitExam(event) {
             "room",
             "status",
             "tools",
-            "remarks"
+            "remarks",
+            "environment"
         ];
         let data = new URLSearchParams();
         for (let field of fields) {

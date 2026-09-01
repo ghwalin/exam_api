@@ -30,7 +30,7 @@ def condition(exam: Exam, student: str, teacher: str, date: str, status: str) ->
         if date not in none_values and \
                 date != exam.event_uuid:
             return False
-        if status not in none_values:
+        if status in none_values:
             status = 'all'
         if exam.status in ['10', '20', '30', '35', '40'] and status not in ['open', 'all']:
             return False
@@ -123,6 +123,8 @@ class ExamDAO:
             old.tools = exam.tools
         if exam.status is not None:
             old.status = exam.status
+        if exam.environment is not None:
+            old.environment = exam.environment
 
         self.save_exams()
 
@@ -167,7 +169,8 @@ class ExamDAO:
                 remarks=item['remarks'],
                 tools=item['tools'],
                 status=item['status'],
-                invited=item['invited']
+                invited=item['invited'],
+                environment=item.get('environment', '')
             )
             self._examdict[key] = exam
 

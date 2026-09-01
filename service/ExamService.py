@@ -37,6 +37,7 @@ class ExamService(Resource):
         self.parser.add_argument('remarks', location='form', default=None, help='remarks')
         self.parser.add_argument('tools', location='form', default=None, help='tools')
         self.parser.add_argument('status', location='form', default=None, help='status')
+        self.parser.add_argument('environment', location='form', default=None, help='Prüfungsumgebung')
 
     @token_required
     def get(self, exam_uuid):
@@ -125,7 +126,8 @@ class ExamService(Resource):
             tools=args.tools,
             event_uuid=args.event_uuid,
             status=args.status,
-            invited=invited
+            invited=invited,
+            environment=args.environment
         )
         exam_dao.update_exam(exam)
         return True
