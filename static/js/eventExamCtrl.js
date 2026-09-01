@@ -163,6 +163,7 @@ function showExamlist(data, locked) {
                         field.name = "selected";
                         field.classList.add("form-check-input");
                         field.setAttribute("data-examUUID", exam.exam_uuid);
+                        field.addEventListener("change", showReminderButton);
                         cell.appendChild(field);
 
                         /* cell = row.insertCell(-1);
@@ -213,6 +214,7 @@ function showExamlist(data, locked) {
                     }
                 }
             });
+            showReminderButton();
             document.getElementById("distinct").innerText = Object.keys(distinctStudent).length
             lockForm("filterForm", locked);
             showMessage("clear", "");
@@ -293,9 +295,7 @@ function sortExams(property) {
 function sendAllEmail(service, examUUIDs = null) {
     showMessage("info", "Sende Emails ...", 2);
     let data = new URLSearchParams();
-    examUUIDs ??= [...document.querySelectorAll("input:checked")]
-        .filter(box => box.hasAttribute("data-examuuid"))
-        .map(box => box.getAttribute("data-examuuid"));
+    examUUIDs ??= selectedExams();
     if (examUUIDs.length > 0) {
         for (const examUUID of examUUIDs) {
             data.append("exam_uuid", examUUID);
@@ -330,25 +330,37 @@ function sendInvitation() {
 }
 
 /**
- * sends a reminder email to the teachers of every exam of the selected event
- * whose documents are still missing, regardless of the selected checkboxes
+ * sends a reminder email to the teachers of the selected exams whose
+ * documents are still missing
  */
 function sendReminder() {
-    const pending = [...document.querySelectorAll("#examlist select[name='status']")]
-        .filter(field => MISSING_DOCUMENTS.includes(field.value));
+    const selected = selectedExams();
+    const pending = selected.filter(examUUID => MISSING_DOCUMENTS.includes(examStatus(examUUID)));
 
     if (pending.length === 0) {
-        showMessage("warning", "Für diese Nachprüfung fehlen keine Prüfungsunterlagen");
+        showMessage("warning", "Bei den ausgewählten Prüfungen fehlen keine Unterlagen");
         return;
     }
-    const question = pending.length === 1
-        ? "Bei 1 Prüfung fehlen die Unterlagen.\n\nErinnerung an die Lehrperson senden?"
-        : `Bei ${pending.length} Prüfungen fehlen die Unterlagen.\n\nErinnerungen an die Lehrpersonen senden?`;
+    const skipped = selected.length - pending.length;
+    const question = (pending.length === 1
+        ? "Bei 1 der ausgewählten Prüfungen fehlen die Unterlagen.\n\nErinnerung an die Lehrperson senden?"
+        : `Bei ${pending.length} der ausgewählten Prüfungen fehlen die Unterlagen.\n\nErinnerungen an die Lehrpersonen senden?`)
+        + (skipped === 0 ? "" : `\n\n${skipped} weitere Prüfung(en) bleiben unberührt, dort sind die Unterlagen da.`);
     if (!window.confirm(question)) {
         showMessage("clear", "");
         return;
     }
-    sendAllEmail("/email/reminder", pending.map(field => field.getAttribute("data-examuuid")));
+    sendAllEmail("/email/reminder", pending);
+}
+
+/**
+ * the status of one exam, read from its dropdown in the list
+ * @param examUUID  the exam to look up
+ * @returns {string} the status value, empty if the exam is not in the list
+ */
+function examStatus(examUUID) {
+    const field = document.querySelector(`#examlist select[name='status'][data-examuuid="${examUUID}"]`);
+    return field === null ? "" : field.value;
 }
 
 /**
@@ -388,6 +400,26 @@ function createAllPDF() {
 }
 
 /**
+ * the exams whose checkbox is ticked
+ * the status switch of the event is a checkbox too, so only the boxes
+ * that carry an exam count as a selection
+ * @returns {string[]} the uuids of the selected exams
+ */
+function selectedExams() {
+    return [...document.querySelectorAll("input:checked")]
+        .filter(box => box.hasAttribute("data-examuuid"))
+        .map(box => box.getAttribute("data-examuuid"));
+}
+
+/**
+ * the reminder needs a selection, so the button stays disabled until
+ * at least one exam is ticked
+ */
+function showReminderButton() {
+    document.getElementById("sendReminder").disabled = selectedExams().length === 0;
+}
+
+/**
  * select all / no exams
  */
 function selectAll() {
@@ -396,4 +428,5 @@ function selectAll() {
     for (const box of checkboxes) {
         box.checked = isChecked;
     }
+    showReminderButton();
 }
