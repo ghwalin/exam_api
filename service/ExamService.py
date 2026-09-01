@@ -67,6 +67,7 @@ class ExamService(Resource):
         """
         args = self.parser.parse_args()
         args.room = 'H100'
+        args.environment = args.environment or ''
         if self.save(args, True):
             return make_response('exam saved', 201)
         else:
