@@ -293,11 +293,9 @@ function sortExams(property) {
 function sendAllEmail(service, examUUIDs = null) {
     showMessage("info", "Sende Emails ...", 2);
     let data = new URLSearchParams();
-    if (examUUIDs === null) {
-        examUUIDs = [...document.querySelectorAll("input:checked")]
-            .filter(box => box.hasAttribute("data-examuuid"))
-            .map(box => box.getAttribute("data-examuuid"));
-    }
+    examUUIDs ??= [...document.querySelectorAll("input:checked")]
+        .filter(box => box.hasAttribute("data-examuuid"))
+        .map(box => box.getAttribute("data-examuuid"));
     if (examUUIDs.length > 0) {
         for (const examUUID of examUUIDs) {
             data.append("exam_uuid", examUUID);
@@ -308,15 +306,16 @@ function sendAllEmail(service, examUUIDs = null) {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": "Bearer " + readStorage("access")
             }, body: data
-        }).then(function (response) {
-            if (!response.ok) {
+        }).then(response => response.text().then(message => {
+            if (response.ok) {
+                showMessage("info", message, 0, 5);
+            } else {
                 console.log(response);
-            } else return response;
-        }).then(response => response.text()
-        ).then(message => {
-            showMessage("info", message, 0, 5);
-        }).catch(function (error) {
+                showMessage("danger", "Die Emails konnten nicht gesendet werden");
+            }
+        })).catch(function (error) {
             console.log(error);
+            showMessage("danger", "Die Emails konnten nicht gesendet werden");
         });
     } else {
         showMessage("warning", "keine Prüfung ausgewählt");

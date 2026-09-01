@@ -68,23 +68,16 @@ class EmailService(Resource):
 
         count = 0
         with mail_connection() as connection:
-            for exam_uuid in args['exam_uuid']:
-                uuid = ''
-                if isinstance(exam_uuid, list):
-                    for item in exam_uuid:
-                        uuid += item
-                else:
-                    uuid = exam_uuid
-                exam = exam_dao.read_exam(uuid)
+            for exam_uuid in args['exam_uuid'] or []:
+                exam = exam_dao.read_exam(''.join(exam_uuid))
                 if exam is None:
+                    continue
+                if type == 'reminder' and exam.status not in MISSING_DOCUMENTS:
                     continue
                 if type == 'invitation':
                     exam.invited = True
-                    create_email(exam, 'invitation', connection)
-                    count += 1
-                elif exam.status in MISSING_DOCUMENTS:
-                    create_email(exam, 'reminder', connection)
-                    count += 1
+                create_email(exam, type, connection)
+                count += 1
         if type == 'invitation':
             exam_dao.save_exams()
         return make_response(f'{count} Email(s) gesendet', 200)
