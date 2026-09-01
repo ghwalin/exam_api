@@ -335,36 +335,39 @@ function sendReminder() {
  * creates a PDF for all selected exams
  */
 function createAllPDF() {
+    /* the status switch of the event is a checkbox too, so only the boxes
+       that carry an exam count as a selection */
+    const examUUIDs = [...document.querySelectorAll("input:checked")]
+        .filter(box => box.hasAttribute("data-examuuid"))
+        .map(box => box.getAttribute("data-examuuid"));
+    if (examUUIDs.length === 0) {
+        showMessage("warning", "keine Prüfung ausgewählt");
+        return;
+    }
+
     showMessage("info", "PDF wird erstellt ...", 2);
     let data = new URLSearchParams();
-    const boxes = document.querySelectorAll("input:checked");
-    if (boxes.length > 0) {
-        for (const box of boxes) {
-            let examUUID = box.getAttribute("data-examuuid");
-            if (examUUID != null)
-                data.append("exam_uuid", examUUID);
-        }
-        fetch(API_URL + "/print", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": "Bearer " + readStorage("access")
-            }, body: data
-        }).then(function (response) {
-            if (!response.ok) {
-                console.log(response);
-            } else return response;
-        }).then(response => response.text()
-        ).then(pdf_name => {
-            let url = "./output/" + pdf_name;
-            window.open(url, "_blank");
-            showMessage("clear", "")
-        }).catch(function (error) {
-            console.log(error);
-        });
-    } else {
-        showMessage("warning", "keine Prüfung ausgewählt");
+    for (const examUUID of examUUIDs) {
+        data.append("exam_uuid", examUUID);
     }
+    fetch(API_URL + "/print", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Bearer " + readStorage("access")
+        }, body: data
+    }).then(response => response.text().then(pdf_name => {
+        if (response.ok) {
+            window.open("./output/" + pdf_name, "_blank");
+            showMessage("clear", "");
+        } else {
+            console.log(response);
+            showMessage("danger", "Die Datenblätter konnten nicht erstellt werden");
+        }
+    })).catch(function (error) {
+        console.log(error);
+        showMessage("danger", "Die Datenblätter konnten nicht erstellt werden");
+    });
 }
 
 /**
