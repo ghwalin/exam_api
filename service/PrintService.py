@@ -65,7 +65,7 @@ class PrintService(Resource):
         :return: response with path to pdf
         """
         args = self.parser.parse_args()
-        exam_uuids = [''.join(arg) for arg in args['exam_uuid'] or []]
+        exam_uuids = [uuid for uuid in (''.join(arg) for arg in args['exam_uuid'] or []) if uuid]
         if not exam_uuids:
             return make_response(jsonify({"message": "no exam selected"}), 400)
 
