@@ -9,7 +9,7 @@ from fpdf import FPDF
 from data.ExamDAO import ExamDAO
 from data.EventDAO import EventDAO
 from util.authorization import token_required, teacher_required
-from util.replace import replace_text
+from util.replace import replace_text, plain_text
 
 
 class PrintService(Resource):
@@ -166,18 +166,6 @@ class PrintService(Resource):
                 'remarks': plain_text(exam.remarks)
                 }
         return data
-
-
-def plain_text(value):
-    """
-    turns a stored text into a readable one
-    line breaks are stored as the marker CRLF, see ExamDAO.save_exams()
-    :param value: the stored text
-    :return: the text with real line breaks
-    """
-    if value is None:
-        return ''
-    return value.replace('CRLF', '\n')
 
 
 def wrap_text(pdf, text, max_width):
