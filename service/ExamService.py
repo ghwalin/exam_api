@@ -37,6 +37,7 @@ class ExamService(Resource):
         self.parser.add_argument('remarks', location='form', default=None, help='remarks')
         self.parser.add_argument('tools', location='form', default=None, help='tools')
         self.parser.add_argument('status', location='form', default=None, help='status')
+        self.parser.add_argument('environment', location='form', default=None, help='Prüfungsumgebung')
 
     @token_required
     def get(self, exam_uuid):
@@ -66,6 +67,7 @@ class ExamService(Resource):
         """
         args = self.parser.parse_args()
         args.room = 'H100'
+        args.environment = args.environment or ''
         if self.save(args, True):
             return make_response('exam saved', 201)
         else:
@@ -93,6 +95,7 @@ class ExamService(Resource):
         """
         exam_dao = ExamDAO()
         invited = False
+        oldExam = None
         if new is False:
             oldExam = exam_dao.read_exam(args.exam_uuid)
             if oldExam is None:
@@ -111,6 +114,15 @@ class ExamService(Resource):
 
         if args.exam_uuid is None or args.exam_uuid == '':
             args.exam_uuid = str(uuid.uuid4())
+        # die Pruefungsumgebung gilt nur fuer elektronische Pruefungen
+        # massgebend ist der Status nach dem Update: der mitgesendete, sonst der
+        # gespeicherte. So haelt die Regel auch bei einem Teil-Update wie
+        # changeExam(), das beim Raumwechsel nur dieses eine Feld sendet
+        status = args.status
+        if status is None and oldExam is not None:
+            status = oldExam.status
+        if status != '35':
+            args.environment = ''
         exam = Exam(
             exam_uuid=args.exam_uuid,
             teacher=teacher,
@@ -125,7 +137,8 @@ class ExamService(Resource):
             tools=args.tools,
             event_uuid=args.event_uuid,
             status=args.status,
-            invited=invited
+            invited=invited,
+            environment=args.environment
         )
         exam_dao.update_exam(exam)
         return True
