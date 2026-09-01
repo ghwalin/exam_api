@@ -44,9 +44,11 @@ class EmailService(Resource):
         if exam is None:
             return make_response('{"message": "not found"}', 404)
 
-        create_email(exam, status)
-        http_status = 200
-        return make_response('{"message": "email sent"}', http_status)
+        if not create_email(exam, status):
+            # bewusst kein 404: httpFetch() im Frontend loest 404 als Erfolg
+            # mit einem leeren Ergebnis auf, der Fehlschlag ginge verloren
+            return make_response('{"message": "event unknown or without supervisor"}', 422)
+        return make_response('{"message": "email sent"}', 200)
 
     @token_required
     @teacher_required
@@ -59,6 +61,7 @@ class EmailService(Resource):
         args = self.parser.parse_args()
         exam_dao = ExamDAO()
 
+        count = 0
         for exam_uuid in args['exam_uuid']:
             uuid = ''
             if isinstance(exam_uuid, list):
@@ -67,11 +70,13 @@ class EmailService(Resource):
             else:
                 uuid = exam_uuid
             exam = exam_dao.read_exam(uuid)
-            if exam is not None:
+            if exam is not None and create_email(exam, 'invitation'):
                 exam.invited = True
-                create_email(exam, 'invitation')
+                count += 1
         exam_dao.save_exams()
-        return make_response('email sent', 200)
+        # die Anzahl steht in der Antwort, damit ein Stapel mit einzelnen
+        # Ausfaellen nicht wie ein vollstaendiger Erfolg aussieht
+        return make_response(f'{count} Email(s) gesendet', 200)
 
 
 def create_email(exam, status):
@@ -83,16 +88,26 @@ def create_email(exam, status):
     """
     event_dao = EventDAO()
     event = event_dao.read_event(exam.event_uuid)
+    if event is None or not event.supervisors:
+        current_app.logger.error(
+            f'no email for exam {exam.exam_uuid}: '
+            f'event {exam.event_uuid} is unknown or has no supervisor'
+        )
+        return False
+
     person_dao = PersonDAO()
-    chief_supervisor = person_dao.read_person(event.supervisors[0])
+    supervisors = [person_dao.read_person(email) for email in event.supervisors]
+    chief_supervisor = supervisors[0]
+    supervisor_emails = ', '.join(person.email for person in supervisors)
     filename = current_app.config['TEMPLATEPATH']
 
     cc = [exam.teacher.email]
     if status == 'invitation':
         filename += 'invitation.txt'
         sender = chief_supervisor.email
-        if chief_supervisor.email != exam.teacher.email:
-            cc.append(chief_supervisor.email)
+        for supervisor in supervisors:
+            if supervisor.email not in cc:
+                cc.append(supervisor.email)
         subject = 'Aufgebot zur Nachprüfung'
     else:
         sender = exam.teacher.email
@@ -116,6 +131,11 @@ def create_email(exam, status):
             'teacher.firstname': exam.teacher.firstname,
             'teacher.lastname': exam.teacher.lastname,
             'teacher.email': exam.teacher.email,
+            'supervisors': ', '.join(person.fullname for person in supervisors),
+            'supervisors.emails': supervisor_emails,
+            # die Vorlagen liegen unter TEMPLATEPATH und koennen aelter sein
+            # als der Code, darum bleiben die bisherigen Platzhalter gueltig
+            'supervisor': supervisor_emails,
             'chief_supervisor.firstname': chief_supervisor.firstname,
             'chief_supervisor.lastname': chief_supervisor.lastname,
             'chief_supervisor.email': chief_supervisor.email,
@@ -126,6 +146,7 @@ def create_email(exam, status):
             'event.door': event_door.strftime('%H:%M'),
             'eventlist': event_dao.open_events(),
             'room': exam.room,
+            'duration': str(exam.duration),
             'tools': exam.tools
             }
     text = replace_text(data, text)
