@@ -347,9 +347,13 @@ function submitExam(event) {
             data.set(field, document.getElementById(field).value);
         }
 
+        const isNewExam = data.get("exam_uuid").trim() === "";
         saveExam(
             data
         ).then(function () {
+            if (isNewExam) {
+                openSheet(document.getElementById("exam_uuid").value);
+            }
             if (document.getElementById("sendexam").checked) {
                 const uuid = document.getElementById('exam_uuid').value;
                 const status = document.getElementById('status').value;
@@ -403,7 +407,14 @@ function sendEmail(event) {
  * @param event
  */
 function createPDF(event) {
-    const uuid = getExamUUID(event)
+    openSheet(getExamUUID(event));
+}
+
+/**
+ * opens the datasheet of an exam in a new tab
+ * @param uuid the uuid of the exam
+ */
+function openSheet(uuid) {
     sendRequest(API_URL + "/print/" + uuid, "GET", null, "blob")
         .then((blob) => {
             const _url = window.URL.createObjectURL(blob);
