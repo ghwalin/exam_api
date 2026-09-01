@@ -347,11 +347,15 @@ function submitExam(event) {
             data.set(field, document.getElementById(field).value);
         }
 
-        const isNewExam = data.get("exam_uuid").trim() === "";
+        // Datenblatt nur fuer eine neue Pruefung ab dem Status "offen",
+        // solange das Arztzeugnis pendent ist oder der Eintrag geloescht wurde nicht
+        const status = data.get("status");
+        const showSheet = data.get("exam_uuid").trim() === "" &&
+            status >= "20" && status <= "40";
         saveExam(
             data
         ).then(function () {
-            if (isNewExam) {
+            if (showSheet) {
                 openSheet(document.getElementById("exam_uuid").value);
             }
             if (document.getElementById("sendexam").checked) {
