@@ -211,13 +211,13 @@ function showExamlist(data, locked) {
                     }
                 }
             });
-            showPDFButton();
             document.getElementById("distinct").innerText = Object.keys(distinctStudent).length
             lockForm("filterForm", locked);
             showMessage("clear", "");
         } else {
             showMessage("warning", "Keine Prüfungen zu diesem Datum gefunden");
         }
+        showPDFButton();
     })();
 }
 
@@ -381,11 +381,23 @@ function selectedExams() {
 }
 
 /**
+ * is the selected event locked for the current user
+ * @returns {boolean} true if the exams may not be changed
+ */
+function eventLocked() {
+    const select = document.getElementById("dateSearch");
+    const option = select.options[select.selectedIndex];
+    return option !== undefined && option.getAttribute("data-locked") === "true";
+}
+
+/**
  * the datasheets need a selection, so the button stays disabled until
  * at least one exam is ticked
+ * a locked event keeps it disabled either way, searchExamlist() sets that
+ * before the list is even loaded
  */
 function showPDFButton() {
-    document.getElementById("createPDF").disabled = selectedExams().length === 0;
+    document.getElementById("createPDF").disabled = eventLocked() || selectedExams().length === 0;
 }
 
 /**
