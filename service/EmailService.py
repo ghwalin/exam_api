@@ -8,7 +8,7 @@ from data.ExamDAO import ExamDAO
 from data.EventDAO import EventDAO
 from data.PersonDAO import PersonDAO
 from util.authorization import token_required, teacher_required
-from util.replace import replace_text
+from util.replace import replace_text, plain_text
 
 
 class EmailService(Resource):
@@ -126,7 +126,7 @@ def create_email(exam, status):
             'event.door': event_door.strftime('%H:%M'),
             'eventlist': event_dao.open_events(),
             'room': exam.room,
-            'tools': exam.tools
+            'tools': plain_text(exam.tools)
             }
     text = replace_text(data, text)
     current_app.logger.info(f'cc={cc}')
