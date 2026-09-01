@@ -318,6 +318,7 @@ function selectExam(event, copy = false) {
             document.getElementById("student").value = "";
             document.getElementById("status").value = 0;
             document.getElementById("room").value = "";
+            document.getElementById("environment").value = "";
             document.getElementById("sendexam").checked = true;
         } else {
             document.getElementById("sendexam").checked = false;
