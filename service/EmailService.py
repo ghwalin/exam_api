@@ -86,6 +86,7 @@ def create_email(exam, status):
     person_dao = PersonDAO()
     supervisors = [person_dao.read_person(email) for email in event.supervisors]
     chief_supervisor = supervisors[0]
+    supervisor_emails = ', '.join(person.email for person in supervisors)
     filename = current_app.config['TEMPLATEPATH']
 
     cc = [exam.teacher.email]
@@ -119,8 +120,10 @@ def create_email(exam, status):
             'teacher.lastname': exam.teacher.lastname,
             'teacher.email': exam.teacher.email,
             'supervisors': ', '.join(person.fullname for person in supervisors),
-            'supervisors.emails': ', '.join(person.email for person in supervisors),
-            'supervisor': ', '.join(person.email for person in supervisors),
+            'supervisors.emails': supervisor_emails,
+            # die Vorlagen liegen unter TEMPLATEPATH und koennen aelter sein
+            # als der Code, darum bleiben die bisherigen Platzhalter gueltig
+            'supervisor': supervisor_emails,
             'chief_supervisor.firstname': chief_supervisor.firstname,
             'chief_supervisor.lastname': chief_supervisor.lastname,
             'chief_supervisor.email': chief_supervisor.email,
