@@ -45,7 +45,9 @@ class EmailService(Resource):
             return make_response('{"message": "not found"}', 404)
 
         if not create_email(exam, status):
-            return make_response('{"message": "event not found"}', 404)
+            # bewusst kein 404: httpFetch() im Frontend loest 404 als Erfolg
+            # mit einem leeren Ergebnis auf, der Fehlschlag ginge verloren
+            return make_response('{"message": "event has no supervisor"}', 422)
         return make_response('{"message": "email sent"}', 200)
 
     @token_required
@@ -59,6 +61,7 @@ class EmailService(Resource):
         args = self.parser.parse_args()
         exam_dao = ExamDAO()
 
+        count = 0
         for exam_uuid in args['exam_uuid']:
             uuid = ''
             if isinstance(exam_uuid, list):
@@ -69,8 +72,11 @@ class EmailService(Resource):
             exam = exam_dao.read_exam(uuid)
             if exam is not None and create_email(exam, 'invitation'):
                 exam.invited = True
+                count += 1
         exam_dao.save_exams()
-        return make_response('email sent', 200)
+        # die Anzahl steht in der Antwort, damit ein Stapel mit einzelnen
+        # Ausfaellen nicht wie ein vollstaendiger Erfolg aussieht
+        return make_response(f'{count} Email(s) gesendet', 200)
 
 
 def create_email(exam, status):
