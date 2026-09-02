@@ -1,0 +1,9 @@
+[
+  {
+    "event_uuid": "11111111-1111-1111-1111-111111111111",
+    "timestamp": "2026-10-01T09:00:00",
+    "rooms": ["H100"],
+    "supervisors": ["maria.teacher@example.test"],
+    "status": "open"
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "email": "maria.teacher@example.test",
+    "firstname": "Maria",
+    "lastname": "Teacher",
+    "department": "IT",
+    "role": "teacher"
+  },
+  {
+    "email": "stefan.student@example.test",
+    "firstname": "Stefan",
+    "lastname": "Student",
+    "department": "IT",
+    "role": "student"
+  },
+  {
+    "email": "petra.teacher@example.test",
+    "firstname": "Petra",
+    "lastname": "Teacher",
+    "department": "IT",
+    "role": "teacher"
+  }
+]
