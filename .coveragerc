@@ -1,0 +1,23 @@
+[run]
+branch = True
+omit =
+    tests/*
+    features/*
+    */__pycache__/*
+    .venv*/*
+    venv/*
+    setup.py
+    # Flask's app.config.from_pyfile() executes .env as Python source, so
+    # without this coverage would trace it like any other module - and the
+    # HTML report would then render your real secrets from .env verbatim.
+    .env
+
+[report]
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError
+
+[html]
+directory = htmlcov
