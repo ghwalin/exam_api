@@ -347,9 +347,17 @@ function submitExam(event) {
             data.set(field, document.getElementById(field).value);
         }
 
+        // Das Datenblatt oeffnet sich nur bei einer neu erfassten Pruefung und
+        // nur bei den Status 20 bis 40. Bei 10 ist das Arztzeugnis noch pendent
+        // und bei 90 ist der Eintrag geloescht, dort waere es sofort Altpapier
+        const showSheet = data.get("exam_uuid").trim() === "" &&
+            ["20", "30", "35", "40"].includes(data.get("status"));
         saveExam(
             data
         ).then(function () {
+            if (showSheet) {
+                openSheet(data.get("exam_uuid"));
+            }
             if (document.getElementById("sendexam").checked) {
                 const uuid = document.getElementById('exam_uuid').value;
                 const status = document.getElementById('status').value;
@@ -403,12 +411,41 @@ function sendEmail(event) {
  * @param event
  */
 function createPDF(event) {
-    const uuid = getExamUUID(event)
+    // der Klick trifft den span oder das i im Knopf, getExamUUID() faengt nur
+    // das i ab. currentTarget ist immer der Knopf, an dem der Listener haengt
+    openSheet(event.currentTarget.getAttribute("data-examuuid"));
+}
+
+/**
+ * opens the datasheet of an exam in a new tab
+ * @param uuid the uuid of the exam
+ */
+function openSheet(uuid) {
+    if (!uuid) {
+        showMessage("danger", "Das Datenblatt konnte nicht erstellt werden");
+        return;
+    }
     sendRequest(API_URL + "/print/" + uuid, "GET", null, "blob")
         .then((blob) => {
+            // httpFetch() loest bei 404 mit der Zeichenkette "[]" auf, unabhaengig
+            // vom angeforderten Typ, createObjectURL() wuerde daran scheitern
+            if (!(blob instanceof Blob)) {
+                showMessage("danger", "Das Datenblatt konnte nicht erstellt werden");
+                return;
+            }
             const _url = window.URL.createObjectURL(blob);
-            window.open(_url, "_blank").focus();
+            const sheet = window.open(_url, "_blank");
+            if (sheet !== null) {
+                sheet.focus();
+            } else {
+                showMessage("warning", "Das Datenblatt wurde vom Popup-Blocker unterdrückt");
+            }
+            // Es gibt kein Ereignis dafuer, dass der neue Tab den Blob geladen
+            // hat. Eine Minute ist grosszuegig genug dafuer und verhindert,
+            // dass die Object-URL fuer den Rest der Sitzung liegen bleibt
+            window.setTimeout(() => window.URL.revokeObjectURL(_url), 60000);
         }).catch((err) => {
         console.log(err);
+        showMessage("danger", "Das Datenblatt konnte nicht erstellt werden");
     });
 }
