@@ -111,7 +111,11 @@ gelöscht (Eintrag gelöscht)"></i>
         </th>
       </tr>
       <tr>
-        <th colspan="7"><h5>Ergebnisse</h5></th>
+        <th colspan="6"><h5>Ergebnisse</h5></th>
+        <th class="text-end">
+          <button class="btn btn-sm btn-outline-primary" type="button" id="showDetails"
+                  title="Zeigt zu jeder Prüfung das Datum der verpassten Prüfung, den Raum, die Hilfsmittel und die Anmerkungen">Mehr anzeigen</button>
+        </th>
       </tr>
       </thead>
       <tbody id="listBody">
@@ -165,11 +169,7 @@ gelöscht (Eintrag gelöscht)"></i>
           </label>
           <input type="date" required class="form-control" id="missed"/>
           <label for="duration" class="form-label">Dauer (Minuten)</label>
-          <input type="number" required class="form-control" id="duration"
-                 aria-describedby="durationHelp"/>
-          <div id="durationHelp" class="form-text">
-            Inklusive bewilligter Zeitzuschlag (Nachteilsausgleich).
-          </div>
+          <input type="number" required class="form-control" id="duration"/>
           <label for="tools" class="form-label">Hilfsmittel</label>
           <textarea class="form-control" id="tools" cols="30" rows="4" wrap="hard" maxlength="120">&nbsp;</textarea>
         </fieldset>
@@ -233,7 +233,7 @@ gelöscht (Eintrag gelöscht)"></i>
 </main>
 <footer class="text-center text-lg-start">
   <div class="container-xxl text-info text-center p-3">
-    Exam v1.3.2r20251231 &copy; 2023-2025 by Marcel Suter
+    Exam v1.3.5r20261060 &copy; 2023-2026 by Marcel Suter
   </div>
 </footer>
 </body>
